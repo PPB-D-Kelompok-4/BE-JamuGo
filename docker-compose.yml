@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  be-jamugo:
+    build: .
+    ports:
+      - "3009:3009"
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
