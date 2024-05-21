@@ -22,6 +22,7 @@ export const messages_id = {
   [MessagesKey.SUCCESSHARDDELETE]: 'Data telah dihapus secara permanen.',
   [MessagesKey.SUCCESSSOFTDELETE]: 'Data telah dihapus secara lunak.',
   [MessagesKey.SUCCESSRESTORE]: 'Data telah dipulihkan.',
+  [MessagesKey.SUCCESSRESETPASSWORD]: 'Email reset kata sandi telah dikirim.',
 
   // Repository messages
   [MessagesKey.ERRORFINDINGALL]: 'Terjadi kesalahan saat mencari semua data',

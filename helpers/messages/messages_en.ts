@@ -22,6 +22,7 @@ export const messages_en = {
   [MessagesKey.SUCCESSHARDDELETE]: 'Data has been permanently deleted.',
   [MessagesKey.SUCCESSSOFTDELETE]: 'Data has been soft deleted.',
   [MessagesKey.SUCCESSRESTORE]: 'Data has been restored.',
+  [MessagesKey.SUCCESSRESETPASSWORD]: 'Password reset email has been sent.',
 
   // Repository messages
   [MessagesKey.ERRORFINDINGALL]: 'Error finding all instances',

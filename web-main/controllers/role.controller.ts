@@ -12,22 +12,6 @@ export class RoleController extends BaseController {
     this.roleService = new RoleService();
   }
 
-  public async roleExists(req: Request, res: Response): Promise<Response> {
-    try {
-      const criteria = req.query;
-      const exists = await this.roleService.roleExists(req, criteria);
-      return this.sendSuccessGet(
-        req,
-        res,
-        { exists },
-        MessagesKey.SUCCESSGET,
-        200,
-      );
-    } catch (error) {
-      return this.handleError(req, res, error, 500);
-    }
-  }
-
   public async findAllRoles(req: Request, res: Response): Promise<Response> {
     try {
       const roles = await this.roleService.findAllRoles(req);
@@ -74,7 +58,7 @@ export class RoleController extends BaseController {
   public async findRoleByName(req: Request, res: Response): Promise<Response> {
     try {
       const name = req.params.name;
-      const roles = await this.roleService.findRoleByName(req, name);
+      const roles = await this.roleService.findByNameRole(req, name);
       if (roles && roles.length > 0) {
         return this.sendSuccessGet(
           req,
