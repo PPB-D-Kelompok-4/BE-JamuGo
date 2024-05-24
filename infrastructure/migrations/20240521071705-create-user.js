@@ -33,6 +33,10 @@ module.exports = {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      image_profile: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       created_by: {
         type: DataTypes.STRING(50),
         allowNull: true,

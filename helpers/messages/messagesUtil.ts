@@ -16,7 +16,7 @@ export function getMessage(
     messages = messages_en;
   }
 
-  const prefix = 'TEMPLATE - ';
+  const prefix = 'JamuGo - ';
   return prefix + (messages[key] ?? 'Message not defined');
 }
 

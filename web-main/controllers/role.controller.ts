@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { RoleService } from '../../business-layer/services/role.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
-import { RoleInputVM } from '../../helpers/view-models/role.vm';
+import { RoleInputDTO } from '../../helpers/dtos/role.dto';
 
 export class RoleController extends BaseController {
   private roleService: RoleService;
@@ -77,13 +77,13 @@ export class RoleController extends BaseController {
 
   public async createRole(req: Request, res: Response): Promise<Response> {
     try {
-      const vm = new RoleInputVM(req.body);
-      const resultVM = await this.roleService.createRole(req, vm);
+      const vm: RoleInputDTO = req.body;
+      const result = await this.roleService.createRole(req, vm);
       return this.sendSuccessCreate(
         req,
         res,
-        resultVM.result,
-        resultVM.result.pkid,
+        result,
+        (result as any).pkid,
       );
     } catch (error) {
       return this.handleError(req, res, error, 500);

@@ -6,6 +6,7 @@ export interface UserAttributes {
   role_pkid: number;
   name: string;
   address?: string;
+  image_profile?: string | null;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
@@ -15,6 +16,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     role_pkid!: number;
     name!: string;
     address?: string;
+    image_profile?: string | null;
   }
 
   User.init(
@@ -43,6 +45,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
       },
       address: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      image_profile: {
         type: DataTypes.TEXT,
         allowNull: true,
       },

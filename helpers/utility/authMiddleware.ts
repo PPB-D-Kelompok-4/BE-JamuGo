@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { auth } from './firebaseAdmin';
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
@@ -9,8 +9,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    const decodedToken = await auth.verifyIdToken(token);
-    (req as any).user = decodedToken;
+    (req as any).user = await auth.verifyIdToken(token);
     next();
   } catch (error) {
     return res.status(401).send('Unauthorized');

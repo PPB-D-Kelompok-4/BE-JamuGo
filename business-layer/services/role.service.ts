@@ -3,6 +3,7 @@ import { BaseService } from '../common/base.service';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { RoleAttributes } from '../../infrastructure/models/role.model';
 import { Model } from 'sequelize';
+import { RoleInputDTO } from '../../helpers/dtos/role.dto';
 
 export class RoleService extends BaseService<Model<RoleAttributes>> {
   constructor() {
@@ -27,8 +28,8 @@ export class RoleService extends BaseService<Model<RoleAttributes>> {
   //endregion
 
   //region Create methods
-  async createRole(req: Request, role: RoleAttributes): Promise<Model<RoleAttributes> | string> {
-    return await super.create(req, role);
+  async createRole(req: Request, role: RoleInputDTO): Promise<Model<RoleAttributes> | string> {
+    return await super.create(req, role as RoleAttributes);
   }
   //endregion
 

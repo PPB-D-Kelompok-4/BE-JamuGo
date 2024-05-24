@@ -74,3 +74,6 @@ out
 
 # Packaging
 package-lock.json
+
+# Ignore Firebase service account key
+infrastructure/config/serviceAccountKey.json
