@@ -79,12 +79,7 @@ export class RoleController extends BaseController {
     try {
       const vm: RoleInputDTO = req.body;
       const result = await this.roleService.createRole(req, vm);
-      return this.sendSuccessCreate(
-        req,
-        res,
-        result,
-        (result as any).pkid,
-      );
+      return this.sendSuccessCreate(req, res, result, (result as any).pkid);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

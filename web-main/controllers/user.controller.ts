@@ -21,7 +21,12 @@ export class UserController extends BaseController {
       }
       const userInput: UserInputDTO = { email, password, name, address };
       const user = await this.userService.register(req, userInput);
-      return this.sendSuccessCreate(req, res, new UserResultVM(user), user.pkid);
+      return this.sendSuccessCreate(
+        req,
+        res,
+        new UserResultVM(user),
+        user.pkid,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -47,7 +52,11 @@ export class UserController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const userUpdate: UserUpdateDTO = req.body;
-      const updateResult = await this.userService.updateUser(req, pkid, userUpdate);
+      const updateResult = await this.userService.updateUser(
+        req,
+        pkid,
+        userUpdate,
+      );
       return this.sendSuccessUpdate(req, res, updateResult);
     } catch (error) {
       return this.handleError(req, res, error, 500);
@@ -57,7 +66,12 @@ export class UserController extends BaseController {
   public async getFirebaseData(req: Request, res: Response): Promise<Response> {
     try {
       const firebaseData = await this.userService.getUserDataFromFirebase(req);
-      return this.sendSuccessGet(req, res, firebaseData, MessagesKey.SUCCESSGET);
+      return this.sendSuccessGet(
+        req,
+        res,
+        firebaseData,
+        MessagesKey.SUCCESSGET,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -70,13 +84,21 @@ export class UserController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const resetLink = await this.userService.resetPassword(req, email);
-      return this.sendSuccessGet(req, res, { resetLink }, MessagesKey.SUCCESSRESETPASSWORD);
+      return this.sendSuccessGet(
+        req,
+        res,
+        { resetLink },
+        MessagesKey.SUCCESSRESETPASSWORD,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async uploadProfileImage(req: Request, res: Response): Promise<Response> {
+  public async uploadProfileImage(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const user = await this.userService.uploadProfileImage(req);
       return this.sendSuccessUpdate(req, res, new UserResultVM(user));

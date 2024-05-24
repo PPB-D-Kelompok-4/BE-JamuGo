@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import { auth } from './firebaseAdmin';
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
 
   if (!token) {

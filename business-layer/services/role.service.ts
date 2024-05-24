@@ -22,19 +22,29 @@ export class RoleService extends BaseService<Model<RoleAttributes>> {
     return await super.findByPKID(req, pkid);
   }
 
-  async findByNameRole(req: Request, name: string): Promise<Model<RoleAttributes>[]> {
+  async findByNameRole(
+    req: Request,
+    name: string,
+  ): Promise<Model<RoleAttributes>[]> {
     return await super.where(req, { name });
   }
   //endregion
 
   //region Create methods
-  async createRole(req: Request, role: RoleInputDTO): Promise<Model<RoleAttributes> | string> {
+  async createRole(
+    req: Request,
+    role: RoleInputDTO,
+  ): Promise<Model<RoleAttributes> | string> {
     return await super.create(req, role as RoleAttributes);
   }
   //endregion
 
   //region Update methods
-  async updateRole(req: Request, pkid: number, role: Partial<RoleAttributes>): Promise<[number, Model<RoleAttributes>[]]> {
+  async updateRole(
+    req: Request,
+    pkid: number,
+    role: Partial<RoleAttributes>,
+  ): Promise<[number, Model<RoleAttributes>[]]> {
     return await super.update(req, pkid, role);
   }
   //endregion
