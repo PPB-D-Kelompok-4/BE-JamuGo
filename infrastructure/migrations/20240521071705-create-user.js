@@ -25,6 +25,15 @@ module.exports = {
           key: 'pkid',
         },
       },
+      email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
       name: {
         type: DataTypes.STRING(255),
         allowNull: false,

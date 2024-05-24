@@ -1,22 +1,31 @@
+import { DataTypes, Model, Sequelize } from 'sequelize';
 import { BaseEntity } from '../interfaces/baseEntity.model';
 
 export interface UserAttributes {
   pkid: number;
   uuid: string;
   role_pkid: number;
+  email: string;
+  password: string;
   name: string;
   address?: string;
   image_profile?: string | null;
 }
 
-module.exports = (sequelize: any, DataTypes: any) => {
-  class User extends BaseEntity implements UserAttributes {
+module.exports = (sequelize: Sequelize) => {
+  class User extends Model<UserAttributes> implements UserAttributes {
     pkid!: number;
     uuid!: string;
     role_pkid!: number;
+    email!: string;
+    password!: string;
     name!: string;
     address?: string;
     image_profile?: string | null;
+
+    toJSON() {
+      return { ...this.get() };
+    }
   }
 
   User.init(
@@ -39,6 +48,15 @@ module.exports = (sequelize: any, DataTypes: any) => {
           model: 'Roles',
           key: 'pkid',
         },
+      },
+      email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
       },
       name: {
         type: DataTypes.STRING(255),

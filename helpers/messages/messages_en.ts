@@ -40,4 +40,7 @@ export const messages_en = {
     'Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
   [MessagesKey.CUSTOMERROLENOTFOUND]: 'Customer role not found.',
   [MessagesKey.NOFILEUPLOADED]: 'No file uploaded.',
+  [MessagesKey.INVALIDCREDENTIALS]: 'Invalid credentials.',
+  [MessagesKey.USERNOTFOUND]: 'User not found.',
+  [MessagesKey.USERUPDATENOTFOUND]: 'User update not found.',
 };

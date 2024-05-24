@@ -34,21 +34,25 @@ export class UserRepository extends BaseRepository<Model<UserAttributes>> {
   ): Promise<boolean> {
     return super.whereExisting(req, criteria);
   }
+
+  async findByUUID(uuid: string): Promise<Model<UserAttributes> | null> {
+    return await this.model.findOne({ where: { uuid } });
+  }
   //endregion
 
   //region Create methods
   async create(
     req: Request,
     entity: CreationAttributes<Model<UserAttributes>>,
-  ): Promise<Model<UserAttributes> | string> {
-    return super.create(req, entity);
+  ): Promise<Model<UserAttributes>> {
+    return await this.model.create(entity);
   }
 
   async bulkCreate(
     req: Request,
     entities: CreationAttributes<Model<UserAttributes>>[],
-  ): Promise<Model<UserAttributes>[] | string> {
-    return super.bulkCreate(req, entities);
+  ): Promise<Model<UserAttributes>[]> {
+    return await this.model.bulkCreate(entities);
   }
   //endregion
 
@@ -58,14 +62,19 @@ export class UserRepository extends BaseRepository<Model<UserAttributes>> {
     pkid: number,
     entity: Partial<UserAttributes>,
   ): Promise<[number, Model<UserAttributes>[]]> {
-    return super.update(req, pkid, entity);
+    return await this.model.update(entity, {
+      where: { pkid },
+      returning: true,
+    });
   }
 
   async bulkUpdate(
     req: Request,
     entities: { pkid: number; values: Partial<UserAttributes> }[],
   ): Promise<void> {
-    return super.bulkUpdate(req, entities);
+    for (const entity of entities) {
+      await this.update(req, entity.pkid, entity.values);
+    }
   }
   //endregion
 
@@ -75,7 +84,7 @@ export class UserRepository extends BaseRepository<Model<UserAttributes>> {
   }
 
   async hardDelete(req: Request, pkid: number): Promise<void> {
-    return super.hardDelete(req, pkid);
+    await this.model.destroy({ where: { pkid } });
   }
 
   async restore(req: Request, pkid: number): Promise<void> {

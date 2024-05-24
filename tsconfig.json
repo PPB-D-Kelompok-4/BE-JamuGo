@@ -6,7 +6,10 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": ["node_modules"]
 }

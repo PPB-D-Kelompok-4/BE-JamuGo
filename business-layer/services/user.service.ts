@@ -3,8 +3,8 @@ import { auth } from '../../helpers/utility/firebaseAdmin';
 import { UserRepository } from '../../data-access/repositories/user.repository';
 import { UserAttributes } from '../../infrastructure/models/user.model';
 import { Model } from 'sequelize';
+import bcrypt from 'bcryptjs';
 import { BaseService } from '../common/base.service';
-import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -26,6 +26,15 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     this.roleRepository = new RoleRepository();
   }
 
+  //region Helper methods
+  private isValidPassword(password: string): boolean {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  }
+  //endregion
+
+  //region Authentication methods
   async register(req: Request, data: UserInputDTO): Promise<UserResultDTO> {
     const { email, password, name, address } = data;
 
@@ -33,7 +42,8 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       throw new Error(getMessage(req, MessagesKey.INVALIDPASSWORD));
     }
 
-    const userRecord = await auth.createUser({ email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userRecord = await auth.createUser({ email, password: hashedPassword });
 
     const customerRole = await this.roleRepository.where(req, {
       name: 'customer',
@@ -47,37 +57,71 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       pkid: 0,
       uuid: userRecord.uid,
       role_pkid: rolePkid,
+      email,
+      password: hashedPassword,
       name,
       address,
       image_profile: null,
     };
 
-    const createdUser = (await this.userRepository.create(
-      req,
-      user,
-    )) as Model<UserAttributes>;
-    return createdUser.toJSON();
+    const createdUser = await this.userRepository.create(req, user);
+
+    if (!(createdUser instanceof Model)) {
+      throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
+    }
+
+    return createdUser.toJSON() as UserResultDTO;
   }
 
   async login(req: Request, data: { email: string; password: string }) {
-    const { email } = data;
-    const userRecord = await admin.auth().getUserByEmail(email);
-    return await auth.createCustomToken(userRecord.uid);
+    const { email, password } = data;
+
+    try {
+      const userRecord = await auth.getUserByEmail(email);
+      const user = await this.userRepository.findByUUID(userRecord.uid);
+
+      if (!user) {
+        throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
+      }
+
+      const userPassword = user.getDataValue('password');
+      const passwordMatch = await bcrypt.compare(password, userPassword);
+      if (!passwordMatch) {
+        throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
+      }
+
+      const idToken = await auth.createCustomToken(userRecord.uid);
+      return idToken;
+    } catch (error) {
+      throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
+    }
+  }
+  //endregion
+
+  //region CRUD methods
+  async updateUser(req: Request, pkid: number, data: UserUpdateDTO): Promise<UserResultDTO> {
+    const [numberOfAffectedRows, affectedRows] = await this.userRepository.update(req, pkid, data);
+    if (numberOfAffectedRows === 0) {
+      throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
+    }
+    const updatedUser = affectedRows[0];
+    return updatedUser.toJSON() as UserResultDTO;
   }
 
-  async updateUser(req: Request, pkid: number, data: UserUpdateDTO) {
-    return await this.userRepository.update(req, pkid, data);
-  }
-
-  async getUserDataFromFirebase(req: Request) {
+  async getUserDataFromFirebase(req: Request): Promise<UserResultDTO> {
     const user = (req as any).user;
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
     }
-    return await auth.getUser(user.uid);
+    const firebaseUser = await auth.getUser(user.uid);
+    const localUser = await this.userRepository.findByUUID(user.uid);
+    if (!localUser) {
+      throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
+    }
+    return { ...localUser.toJSON(), ...firebaseUser.toJSON() } as UserResultDTO;
   }
 
-  async resetPassword(req: Request, email: string) {
+  async resetPassword(req: Request, email: string): Promise<string> {
     await auth.getUserByEmail(email);
     return await auth.generatePasswordResetLink(email);
   }
@@ -93,10 +137,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     }
 
     const userId = user.uid;
-    const userRecord = (await this.userRepository.findByID(
-      req,
-      userId,
-    )) as Model<UserAttributes>;
+    const userRecord = await this.userRepository.findByID(req, userId);
 
     if (!userRecord) {
       throw new Error(
@@ -136,10 +177,5 @@ export class UserService extends BaseService<Model<UserAttributes>> {
 
     return userJson as UserResultDTO;
   }
-
-  private isValidPassword(password: string): boolean {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-  }
+  //endregion
 }

@@ -6,16 +6,27 @@ export const authenticate = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const token = req.headers.authorization?.split('Bearer ')[1];
+  const authorizationHeader = req.headers.authorization;
+
+  if (!authorizationHeader) {
+    console.error('No authorization header');
+    return res.status(401).json({ message: 'Unauthorized: No token provided' });
+  }
+
+  const token = authorizationHeader.split('Bearer ')[1];
 
   if (!token) {
-    return res.status(401).send('Unauthorized');
+    console.error('No token found in authorization header');
+    return res.status(401).json({ message: 'Unauthorized: No token provided' });
   }
 
   try {
-    (req as any).user = await auth.verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
+    console.log('Decoded Token:', decodedToken);
+    (req as any).user = decodedToken;
     next();
   } catch (error) {
-    return res.status(401).send('Unauthorized');
+    console.error('Token verification failed', error);
+    return res.status(401).json({ message: 'Unauthorized: Invalid token', error: (error as Error).message });
   }
 };

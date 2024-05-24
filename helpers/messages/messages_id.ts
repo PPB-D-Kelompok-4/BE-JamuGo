@@ -42,4 +42,7 @@ export const messages_id = {
     'Kata sandi tidak valid. Kata sandi harus terdiri dari minimal 8 karakter, mengandung setidaknya satu huruf besar, satu huruf kecil, satu digit, dan satu karakter khusus.',
   [MessagesKey.CUSTOMERROLENOTFOUND]: 'Peran pelanggan tidak ditemukan.',
   [MessagesKey.NOFILEUPLOADED]: 'Tidak ada file yang diunggah.',
+  [MessagesKey.INVALIDCREDENTIALS]: 'Kredensial tidak valid.',
+  [MessagesKey.USERNOTFOUND]: 'Pengguna tidak ditemukan.',
+  [MessagesKey.USERUPDATENOTFOUND]: 'Pembaruan pengguna tidak ditemukan.',
 };
