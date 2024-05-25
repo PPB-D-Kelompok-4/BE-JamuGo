@@ -45,4 +45,5 @@ export const messages_id = {
   [MessagesKey.INVALIDCREDENTIALS]: 'Kredensial tidak valid.',
   [MessagesKey.USERNOTFOUND]: 'Pengguna tidak ditemukan.',
   [MessagesKey.USERUPDATENOTFOUND]: 'Pembaruan pengguna tidak ditemukan.',
+  [MessagesKey.INVALIDEMAIL]: 'Format email tidak valid.',
 };

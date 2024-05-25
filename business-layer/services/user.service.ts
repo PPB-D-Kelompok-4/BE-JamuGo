@@ -7,13 +7,9 @@ import bcrypt from 'bcryptjs';
 import { BaseService } from '../common/base.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import {
-  UserInputDTO,
-  UserResultDTO,
-  UserUpdateDTO,
-} from '../../helpers/dtos/user.dto';
+import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
-import { getMessage, formatMessage } from '../../helpers/messages/messagesUtil';
+import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 
 export class UserService extends BaseService<Model<UserAttributes>> {
@@ -32,6 +28,11 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
   //endregion
 
   //region Authentication methods
@@ -40,6 +41,10 @@ export class UserService extends BaseService<Model<UserAttributes>> {
 
     if (!this.isValidPassword(password)) {
       throw new Error(getMessage(req, MessagesKey.INVALIDPASSWORD));
+    }
+
+    if (!this.isValidEmail(email)) {
+      throw new Error(getMessage(req, MessagesKey.INVALIDEMAIL));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -66,10 +71,6 @@ export class UserService extends BaseService<Model<UserAttributes>> {
 
     const createdUser = await this.userRepository.create(req, user);
 
-    if (!(createdUser instanceof Model)) {
-      throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
-    }
-
     return createdUser.toJSON() as UserResultDTO;
   }
 
@@ -90,8 +91,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
         throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
       }
 
-      const idToken = await auth.createCustomToken(userRecord.uid);
-      return idToken;
+      return await auth.createCustomToken(userRecord.uid);
     } catch (error) {
       throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
     }

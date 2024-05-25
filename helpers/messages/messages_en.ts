@@ -43,4 +43,5 @@ export const messages_en = {
   [MessagesKey.INVALIDCREDENTIALS]: 'Invalid credentials.',
   [MessagesKey.USERNOTFOUND]: 'User not found.',
   [MessagesKey.USERUPDATENOTFOUND]: 'User update not found.',
+  [MessagesKey.INVALIDEMAIL]: 'Invalid email format.',
 };

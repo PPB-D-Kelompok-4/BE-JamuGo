@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { UserService } from '../../business-layer/services/user.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
-import { UserInputDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
-import { UserResultVM } from '../../helpers/view-models/user.vm';
+import { UserUpdateDTO } from '../../helpers/dtos/user.dto';
+import { UserInputVM, UserResultVM } from '../../helpers/view-models/user.vm';
 
 export class UserController extends BaseController {
   private userService: UserService;
@@ -19,12 +19,13 @@ export class UserController extends BaseController {
       if (!email || !password || !name) {
         return this.sendErrorBadRequest(req, res);
       }
-      const userInput: UserInputDTO = { email, password, name, address };
-      const user = await this.userService.register(req, userInput);
+      const userInput = new UserInputVM({ email, password, name, address });
+      const user = await this.userService.register(req, userInput.userData);
+      const userResultVM = new UserResultVM(user);
       return this.sendSuccessCreate(
         req,
         res,
-        new UserResultVM(user),
+        userResultVM.result,
         user.pkid,
       );
     } catch (error) {
@@ -101,7 +102,8 @@ export class UserController extends BaseController {
   ): Promise<Response> {
     try {
       const user = await this.userService.uploadProfileImage(req);
-      return this.sendSuccessUpdate(req, res, new UserResultVM(user));
+      const userResultVM = new UserResultVM(user);
+      return this.sendSuccessUpdate(req, res, userResultVM.result);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
