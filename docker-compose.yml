@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: JamuGo17
+      MYSQL_DATABASE: db_jamugo
+
   be-jamugo:
     build: .
     ports:
@@ -10,3 +19,8 @@ services:
     volumes:
       - .:/usr/src/app
     restart: unless-stopped
+    depends_on:
+      - db
+
+volumes:
+  db_data:
