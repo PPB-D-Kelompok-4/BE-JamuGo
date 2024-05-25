@@ -7,7 +7,11 @@ import bcrypt from 'bcryptjs';
 import { BaseService } from '../common/base.service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
+import {
+  UserInputDTO,
+  UserResultDTO,
+  UserUpdateDTO,
+} from '../../helpers/dtos/user.dto';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
@@ -48,7 +52,10 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userRecord = await auth.createUser({ email, password: hashedPassword });
+    const userRecord = await auth.createUser({
+      email,
+      password: hashedPassword,
+    });
 
     const customerRole = await this.roleRepository.where(req, {
       name: 'customer',
@@ -99,8 +106,13 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   //endregion
 
   //region CRUD methods
-  async updateUser(req: Request, pkid: number, data: UserUpdateDTO): Promise<UserResultDTO> {
-    const [numberOfAffectedRows, affectedRows] = await this.userRepository.update(req, pkid, data);
+  async updateUser(
+    req: Request,
+    pkid: number,
+    data: UserUpdateDTO,
+  ): Promise<UserResultDTO> {
+    const [numberOfAffectedRows, affectedRows] =
+      await this.userRepository.update(req, pkid, data);
     if (numberOfAffectedRows === 0) {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }

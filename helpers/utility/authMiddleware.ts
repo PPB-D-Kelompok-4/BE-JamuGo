@@ -27,6 +27,11 @@ export const authenticate = async (
     next();
   } catch (error) {
     console.error('Token verification failed', error);
-    return res.status(401).json({ message: 'Unauthorized: Invalid token', error: (error as Error).message });
+    return res
+      .status(401)
+      .json({
+        message: 'Unauthorized: Invalid token',
+        error: (error as Error).message,
+      });
   }
 };

@@ -22,12 +22,7 @@ export class UserController extends BaseController {
       const userInput = new UserInputVM({ email, password, name, address });
       const user = await this.userService.register(req, userInput.userData);
       const userResultVM = new UserResultVM(user);
-      return this.sendSuccessCreate(
-        req,
-        res,
-        userResultVM.result,
-        user.pkid,
-      );
+      return this.sendSuccessCreate(req, res, userResultVM.result, user.pkid);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
