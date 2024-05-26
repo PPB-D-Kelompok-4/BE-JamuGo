@@ -57,13 +57,11 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       password: hashedPassword,
     });
 
-    const customerRole = await this.roleRepository.where(req, {
-      name: 'customer',
-    });
-    if (!customerRole || customerRole.length === 0) {
+    const customerRole = await this.roleRepository.findByName('customer');
+    if (!customerRole) {
       throw new Error(getMessage(req, MessagesKey.CUSTOMERROLENOTFOUND));
     }
-    const rolePkid = customerRole[0].get('pkid') as number;
+    const rolePkid = customerRole.get('pkid') as number;
 
     const user: UserAttributes = {
       pkid: 0,

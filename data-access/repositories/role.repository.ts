@@ -34,6 +34,10 @@ export class RoleRepository extends BaseRepository<Model<RoleAttributes>> {
   ): Promise<boolean> {
     return super.whereExisting(req, criteria);
   }
+
+  async findByName(name: string): Promise<Model<RoleAttributes> | null> {
+    return await this.model.findOne({ where: { name } });
+  }
   //endregion
 
   //region Create methods

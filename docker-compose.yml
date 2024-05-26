@@ -7,7 +7,7 @@ services:
       - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: JamuGo17
+      MYSQL_ROOT_PASSWORD: @JamuGo17
       MYSQL_DATABASE: db_jamugo
 
   be-jamugo:
