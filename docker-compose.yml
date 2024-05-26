@@ -3,13 +3,13 @@ version: '3'
 services:
   be_jamugo:
     build:
-      context: ./be-jamugo
+      context: .
       dockerfile: Dockerfile
     restart: always
     ports:
       - "3009:3009"
     env_file:
-      - ./be-jamugo/.env
+      - .env
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
 
