@@ -1,26 +1,31 @@
-version: '3.8'
+version: '3'
 
 services:
-  db:
-    image: mysql:5.7
-    volumes:
-      - db_data:/var/lib/mysql
+  be_jamugo:
+    build:
+      context: ./be-jamugo
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3009:3009"
+    env_file:
+      - ./be-jamugo/.env
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+
+  mysql:
+    image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: @JamuGo17
+      MYSQL_ROOT_PASSWORD: "@JamuGo17"
       MYSQL_DATABASE: db_jamugo
-
-  be-jamugo:
-    build: .
+      MYSQL_USER: root
+      MYSQL_PASSWORD: "@JamuGo17"
     ports:
-      - '3009:3009'
-    env_file:
-      - .env
+      - "3306:3306"
     volumes:
-      - .:/usr/src/app
-    restart: unless-stopped
-    depends_on:
-      - db
+      - db_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
 
 volumes:
   db_data:
