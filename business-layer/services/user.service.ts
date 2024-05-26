@@ -37,6 +37,11 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
+
+  private async isEmailUnique(req: Request, email: string): Promise<boolean> {
+    const existingUser = await this.userRepository.whereExisting(req, { email });
+    return !existingUser;
+  }
   //endregion
 
   //region Authentication methods
@@ -51,14 +56,25 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       throw new Error(getMessage(req, MessagesKey.INVALIDEMAIL));
     }
 
+    if (!(await this.isEmailUnique(req, email))) {
+      throw new Error(getMessage(req, MessagesKey.EMAILALREADYEXISTS));
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userRecord = await auth.createUser({
-      email,
-      password: hashedPassword,
-    });
+
+    let userRecord;
+    try {
+      userRecord = await auth.createUser({
+        email,
+        password: hashedPassword,
+      });
+    } catch (error) {
+      throw new Error(getMessage(req, MessagesKey.ERRORCREATEUSER));
+    }
 
     const customerRole = await this.roleRepository.findByName('customer');
     if (!customerRole) {
+      await auth.deleteUser(userRecord.uid);
       throw new Error(getMessage(req, MessagesKey.CUSTOMERROLENOTFOUND));
     }
     const rolePkid = customerRole.get('pkid') as number;
@@ -74,7 +90,13 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       image_profile: null,
     };
 
-    const createdUser = await this.userRepository.create(req, user);
+    let createdUser;
+    try {
+      createdUser = await this.userRepository.create(req, user);
+    } catch (error) {
+      await auth.deleteUser(userRecord.uid);
+      throw new Error(getMessage(req, MessagesKey.ERRORCREATE));
+    }
 
     return createdUser.toJSON() as UserResultDTO;
   }

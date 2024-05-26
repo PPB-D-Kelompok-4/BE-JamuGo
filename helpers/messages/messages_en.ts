@@ -8,13 +8,13 @@ export const messages_en = {
   [MessagesKey.BADREQUEST]: 'Bad request.',
   [MessagesKey.UNAUTHORIZED]: 'Unauthorized.',
   [MessagesKey.SPESIFICDATANOTFOUND]: '{0} not found.',
-  [MessagesKey.ERRORCREATION]:
-    'Failed to create {0}. The creation method did not return a valid model instance.',
+  [MessagesKey.ERRORCREATION]: 'Failed to create {0}. The creation method did not return a valid model instance.',
+  [MessagesKey.ERRORCREATEUSER]: 'Failed to create user in Firebase.',
+  [MessagesKey.EMAILALREADYEXISTS]: 'Email already exists.',
 
   // Common Success messages
   [MessagesKey.SUCCESSGET]: 'Data has been found.',
-  [MessagesKey.SUCCESSGETBYID]:
-    'Data has been found by the specified criteria.',
+  [MessagesKey.SUCCESSGETBYID]: 'Data has been found by the specified criteria.',
   [MessagesKey.SUCCESSCREATE]: 'Data has been created.',
   [MessagesKey.SUCCESSBULKCREATE]: 'Data has been bulk created.',
   [MessagesKey.SUCCESSUPDATE]: 'Data has been updated.',
@@ -29,15 +29,12 @@ export const messages_en = {
   [MessagesKey.ERRORFINDINGBYID]: 'Error finding instance by ID',
   [MessagesKey.ERRORCREATE]: 'Error occurred while creating the data.',
   [MessagesKey.ERRORBULKCREATE]: 'Error occurred while bulk creating data.',
-  [MessagesKey.ERRORHARDDELETING]:
-    'Error occurred while permanently deleting the data.',
-  [MessagesKey.ERRORSOFTDELETING]:
-    'Error occurred while soft deleting the data.',
+  [MessagesKey.ERRORHARDDELETING]: 'Error occurred while permanently deleting the data.',
+  [MessagesKey.ERRORSOFTDELETING]: 'Error occurred while soft deleting the data.',
   [MessagesKey.ERRORRESTORING]: 'Error occurred while restoring the data.',
 
   // Business Logic messages
-  [MessagesKey.INVALIDPASSWORD]:
-    'Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
+  [MessagesKey.INVALIDPASSWORD]: 'Invalid password. Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
   [MessagesKey.CUSTOMERROLENOTFOUND]: 'Customer role not found.',
   [MessagesKey.NOFILEUPLOADED]: 'No file uploaded.',
   [MessagesKey.INVALIDCREDENTIALS]: 'Invalid credentials.',
