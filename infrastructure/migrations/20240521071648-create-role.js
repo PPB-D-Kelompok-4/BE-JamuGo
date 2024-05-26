@@ -5,7 +5,7 @@ let DataTypes;
 
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.createTable('Roles', {
+    await queryInterface.createTable('roles', {
       pkid: {
         allowNull: false,
         autoIncrement: true,
@@ -60,6 +60,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Roles');
+    await queryInterface.dropTable('roles');
   },
 };

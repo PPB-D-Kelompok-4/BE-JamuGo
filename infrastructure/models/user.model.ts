@@ -45,7 +45,7 @@ module.exports = (sequelize: Sequelize) => {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Roles',
+          model: 'roles',
           key: 'pkid',
         },
       },
@@ -75,7 +75,7 @@ module.exports = (sequelize: Sequelize) => {
     {
       sequelize,
       modelName: 'User',
-      tableName: 'Users',
+      tableName: 'users',
       timestamps: false,
     },
   );

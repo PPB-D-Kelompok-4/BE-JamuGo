@@ -5,7 +5,7 @@ let DataTypes;
 
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.createTable('Payments', {
+    await queryInterface.createTable('payments', {
       pkid: {
         allowNull: false,
         autoIncrement: true,
@@ -16,7 +16,7 @@ module.exports = {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Transactions',
+          model: 'transactions',
           key: 'pkid',
         },
       },
@@ -84,6 +84,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Payments');
+    await queryInterface.dropTable('payments');
   },
 };

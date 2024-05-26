@@ -33,7 +33,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Transactions',
+          model: 'transactions',
           key: 'pkid',
         },
       },
@@ -62,7 +62,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'Payment',
-      tableName: 'Payments',
+      tableName: 'payments',
       timestamps: false,
     },
   );

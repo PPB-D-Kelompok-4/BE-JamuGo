@@ -29,7 +29,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Carts',
+          model: 'carts',
           key: 'pkid',
         },
       },
@@ -37,7 +37,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Menus',
+          model: 'menus',
           key: 'pkid',
         },
       },
@@ -54,7 +54,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'CartItem',
-      tableName: 'CartItems',
+      tableName: 'cart_items',
       timestamps: false,
     },
   );

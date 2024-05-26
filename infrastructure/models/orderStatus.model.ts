@@ -25,7 +25,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         type: DataTypes.BIGINT,
         allowNull: false,
         references: {
-          model: 'Orders',
+          model: 'orders',
           key: 'pkid',
         },
       },
@@ -38,7 +38,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: 'OrderStatus',
-      tableName: 'OrderStatuses',
+      tableName: 'order_statuses',
       timestamps: false,
     },
   );
