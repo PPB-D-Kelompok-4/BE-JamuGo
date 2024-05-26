@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
+import * as jwt from 'jsonwebtoken';
 import { auth } from './firebaseAdmin';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 export const authenticate = async (
   req: Request,
@@ -21,17 +24,15 @@ export const authenticate = async (
   }
 
   try {
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = jwt.verify(token, JWT_SECRET) as { uid: string };
     console.log('Decoded Token:', decodedToken);
-    (req as any).user = decodedToken;
+    (req as any).user = await auth.getUser(decodedToken.uid);
     next();
   } catch (error) {
     console.error('Token verification failed', error);
-    return res
-      .status(401)
-      .json({
-        message: 'Unauthorized: Invalid token',
-        error: (error as Error).message,
-      });
+    return res.status(401).json({
+      message: 'Unauthorized: Invalid token',
+      error: (error as Error).message,
+    });
   }
 };

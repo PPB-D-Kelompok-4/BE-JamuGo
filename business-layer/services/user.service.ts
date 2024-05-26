@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import { BaseService } from '../common/base.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as jwt from 'jsonwebtoken';
 import {
   UserInputDTO,
   UserResultDTO,
@@ -15,6 +16,8 @@ import {
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 export class UserService extends BaseService<Model<UserAttributes>> {
   private userRepository: UserRepository;
@@ -39,7 +42,9 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   }
 
   private async isEmailUnique(req: Request, email: string): Promise<boolean> {
-    const existingUser = await this.userRepository.whereExisting(req, { email });
+    const existingUser = await this.userRepository.whereExisting(req, {
+      email,
+    });
     return !existingUser;
   }
   //endregion
@@ -98,7 +103,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       throw new Error(getMessage(req, MessagesKey.ERRORCREATE));
     }
 
-    return createdUser.toJSON() as UserResultDTO;
+    return createdUser.toJSON();
   }
 
   async login(req: Request, data: { email: string; password: string }) {
@@ -118,7 +123,9 @@ export class UserService extends BaseService<Model<UserAttributes>> {
         throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
       }
 
-      return await auth.createCustomToken(userRecord.uid);
+      const token = jwt.sign({ uid: userRecord.uid }, JWT_SECRET, { expiresIn: '5d' });
+
+      return token;
     } catch (error) {
       throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
     }
