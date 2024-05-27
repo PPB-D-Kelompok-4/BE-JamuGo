@@ -3,6 +3,7 @@ import { RoleService } from '../../business-layer/services/role.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { RoleInputDTO } from '../../helpers/dtos/role.dto';
+import { RoleInputVM } from '../../helpers/view-models/role.vm';
 
 export class RoleController extends BaseController {
   private roleService: RoleService;
@@ -78,7 +79,8 @@ export class RoleController extends BaseController {
   public async createRole(req: Request, res: Response): Promise<Response> {
     try {
       const vm: RoleInputDTO = req.body;
-      const result = await this.roleService.createRole(req, vm);
+      const roleVM = new RoleInputVM(vm);
+      const result = await this.roleService.createRole(req, roleVM.roleData);
       return this.sendSuccessCreate(req, res, result, (result as any).pkid);
     } catch (error) {
       return this.handleError(req, res, error, 500);

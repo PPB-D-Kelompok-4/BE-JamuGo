@@ -4,6 +4,7 @@ import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { RoleAttributes } from '../../infrastructure/models/role.model';
 import { Model } from 'sequelize';
 import { RoleInputDTO } from '../../helpers/dtos/role.dto';
+import { RoleInputVM } from '../../helpers/view-models/role.vm';
 
 export class RoleService extends BaseService<Model<RoleAttributes>> {
   constructor() {
@@ -35,7 +36,8 @@ export class RoleService extends BaseService<Model<RoleAttributes>> {
     req: Request,
     role: RoleInputDTO,
   ): Promise<Model<RoleAttributes> | string> {
-    return await super.create(req, role as RoleAttributes);
+    const roleVM = new RoleInputVM(role);
+    return await super.create(req, roleVM.roleData as RoleAttributes);
   }
   //endregion
 

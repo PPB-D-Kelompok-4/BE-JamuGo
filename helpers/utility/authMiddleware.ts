@@ -26,7 +26,12 @@ export const authenticate = async (
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET) as { uid: string };
     console.log('Decoded Token:', decodedToken);
-    (req as any).user = await auth.getUser(decodedToken.uid);
+    const user = await auth.getUser(decodedToken.uid);
+    (req as any).user = {
+      uid: user.uid,
+      name: user.displayName || user.email,
+      email: user.email,
+    };
     next();
   } catch (error) {
     console.error('Token verification failed', error);

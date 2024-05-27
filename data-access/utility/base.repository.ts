@@ -19,33 +19,33 @@ export abstract class BaseRepository<T extends Model> {
 
   //region Extract User Information
   private extractCreationInfo(req: Request) {
-    const user = req.headers['authorization'] ?? 'admin';
+    const user = (req as any).user;
     const host = req.ip ?? 'localhost';
     const currentTime = new Date();
     return {
-      created_by: user,
+      created_by: user?.name ?? 'admin',
       created_date: currentTime,
       created_host: host,
     };
   }
 
   private extractUpdateInfo(req: Request) {
-    const user = req.headers['authorization'] ?? 'admin';
+    const user = (req as any).user;
     const host = req.ip ?? 'localhost';
     const currentTime = new Date();
     return {
-      updated_by: user,
+      updated_by: user?.name ?? 'admin',
       updated_date: currentTime,
       updated_host: host,
     };
   }
 
   private extractDeletionInfo(req: Request) {
-    const user = req.headers['authorization'] ?? 'admin';
+    const user = (req as any).user;
     const host = req.ip ?? 'localhost';
     const currentTime = new Date();
     return {
-      deleted_by: user,
+      deleted_by: user?.name ?? 'admin',
       deleted_date: currentTime,
       deleted_host: host,
       is_deleted: true,
@@ -54,10 +54,6 @@ export abstract class BaseRepository<T extends Model> {
   //endregion
 
   //region Find methods
-
-  /**
-   * Find all instances of the model.
-   */
   async findAll(req: Request): Promise<T[]> {
     try {
       return await this.model.findAll();
@@ -71,11 +67,6 @@ export abstract class BaseRepository<T extends Model> {
     }
   }
 
-  /**
-   * Find an instance by its primary key ID.
-   * @param req
-   * @param pkid Primary key ID of the instance.
-   */
   async findByID(req: Request, pkid: number): Promise<T | null> {
     try {
       return await this.model.findByPk(pkid);
@@ -89,12 +80,6 @@ export abstract class BaseRepository<T extends Model> {
     }
   }
 
-  /**
-   * Find instances that match the given criteria, with optional ordering and limiting.
-   * @param req The request object.
-   * @param criteria The criteria to filter instances.
-   * @param options Optional parameters for ordering and limiting the results.
-   */
   async where(
     req: Request,
     criteria: WhereOptions<T['_attributes']>,
@@ -115,11 +100,6 @@ export abstract class BaseRepository<T extends Model> {
     }
   }
 
-  /**
-   * Check if an instance exists that matches the given criteria.
-   * @param req
-   * @param criteria
-   */
   async whereExisting(
     req: Request,
     criteria: Partial<T['_attributes']>,
@@ -140,17 +120,9 @@ export abstract class BaseRepository<T extends Model> {
       throw error;
     }
   }
-
   //endregion
 
   //region Create methods
-
-  /**
-   * Creates a new instance of the model.
-   * @param req The request object to extract user and host information.
-   * @param entity The data to be created.
-   * @returns The created instance or an error message.
-   */
   async create(
     req: Request,
     entity: CreationAttributes<T>,
@@ -166,12 +138,6 @@ export abstract class BaseRepository<T extends Model> {
     }
   }
 
-  /**
-   * Bulk creates instances of the model.
-   * @param req The request object to extract user and host information.
-   * @param entities An array of data to be created.
-   * @returns The created instances or an error message.
-   */
   async bulkCreate(
     req: Request,
     entities: CreationAttributes<T>[],
@@ -189,11 +155,9 @@ export abstract class BaseRepository<T extends Model> {
       return getMessage(req, MessagesKey.ERRORBULKCREATE);
     }
   }
-
   //endregion
 
   //region Update methods
-
   async update(
     req: Request,
     pkid: number,
@@ -237,10 +201,9 @@ export abstract class BaseRepository<T extends Model> {
       throw error;
     }
   }
-
   //endregion
 
-  // region Delete and Restore methods
+  //region Delete and Restore methods
   async softDelete(req: Request, pkid: number): Promise<void> {
     const deletionInfo = this.extractDeletionInfo(req);
     try {
@@ -277,11 +240,6 @@ export abstract class BaseRepository<T extends Model> {
     }
   }
 
-  /**
-   * Restores a previously deleted instance by its primary key ID.
-   * @param req
-   * @param pkid Primary key ID of the instance.
-   */
   async restore(req: Request, pkid: number): Promise<void> {
     try {
       await this.model.update(
@@ -308,6 +266,5 @@ export abstract class BaseRepository<T extends Model> {
       throw error;
     }
   }
-
   //endregion
 }
