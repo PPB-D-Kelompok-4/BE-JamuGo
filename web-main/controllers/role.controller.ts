@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { RoleService } from '../../business-layer/services/role.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
-import { RoleInputDTO } from '../../helpers/dtos/role.dto';
-import { RoleInputVM } from '../../helpers/view-models/role.vm';
+import { RoleInputDTO, RoleUpdateDTO } from '../../helpers/dtos/role.dto';
+import { RoleInputVM, RoleResultVM, RoleUpdateVM } from '../../helpers/view-models/role.vm';
 
 export class RoleController extends BaseController {
   private roleService: RoleService;
@@ -93,12 +93,11 @@ export class RoleController extends BaseController {
       if (isNaN(pkid)) {
         return this.sendErrorBadRequest(req, res);
       }
-      const updateResult = await this.roleService.updateRole(
-        req,
-        pkid,
-        req.body,
-      );
-      return this.sendSuccessUpdate(req, res, updateResult);
+      const vm: RoleUpdateDTO = req.body;
+      const roleVM = new RoleUpdateVM(vm);
+      const updateResult = await this.roleService.updateRole(req, pkid, roleVM.roleData);
+      const roleResultVM = new RoleResultVM(updateResult);
+      return this.sendSuccessUpdate(req, res, roleResultVM.result);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

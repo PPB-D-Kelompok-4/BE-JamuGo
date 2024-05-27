@@ -3,8 +3,10 @@ import { BaseService } from '../common/base.service';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { RoleAttributes } from '../../infrastructure/models/role.model';
 import { Model } from 'sequelize';
-import { RoleInputDTO } from '../../helpers/dtos/role.dto';
-import { RoleInputVM } from '../../helpers/view-models/role.vm';
+import { RoleInputDTO, RoleResultDTO, RoleUpdateDTO } from '../../helpers/dtos/role.dto';
+import { RoleInputVM, RoleUpdateVM } from '../../helpers/view-models/role.vm';
+import { getMessage } from '../../helpers/messages/messagesUtil';
+import { MessagesKey } from '../../helpers/messages/messagesKey';
 
 export class RoleService extends BaseService<Model<RoleAttributes>> {
   constructor() {
@@ -45,9 +47,15 @@ export class RoleService extends BaseService<Model<RoleAttributes>> {
   async updateRole(
     req: Request,
     pkid: number,
-    role: Partial<RoleAttributes>,
-  ): Promise<[number, Model<RoleAttributes>[]]> {
-    return await super.update(req, pkid, role);
+    role: RoleUpdateDTO,
+  ): Promise<RoleResultDTO> {
+    const roleVM = new RoleUpdateVM(role);
+    await super.update(req, pkid, roleVM.roleData);
+    const updatedRole = await this.findRoleByID(req, pkid);
+    if (!updatedRole) {
+      throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
+    }
+    return updatedRole.toJSON() as RoleResultDTO;
   }
   //endregion
 
