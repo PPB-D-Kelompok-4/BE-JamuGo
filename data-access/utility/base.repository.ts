@@ -242,20 +242,8 @@ export abstract class BaseRepository<T extends Model> {
 
   async restore(req: Request, pkid: number): Promise<void> {
     try {
-      await this.model.update(
-        {
-          is_deleted: false,
-          deleted_by: null,
-          deleted_date: null,
-          deleted_host: null,
-        },
-        {
-          where: { pkid: pkid as any } as WhereOptions<T['_attributes']>, // Adjusting typing
-          paranoid: false,
-        },
-      );
       await this.model.restore({
-        where: { pkid: pkid as any } as WhereOptions<T['_attributes']>, // Adjusting typing
+        where: { pkid: pkid as any } as WhereOptions<T['_attributes']>,
       });
     } catch (error) {
       if (error instanceof Error) {

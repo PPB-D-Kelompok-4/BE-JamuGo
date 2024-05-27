@@ -27,7 +27,7 @@ router.delete('/soft/:pkid', (req, res) =>
 router.delete('/hard/:pkid', (req, res) =>
   roleController.hardDeleteRole(req, res),
 );
-router.post('/restore/:pkid', (req, res) =>
+router.put('/restore/:pkid', (req, res) =>
   roleController.restoreRole(req, res),
 );
 

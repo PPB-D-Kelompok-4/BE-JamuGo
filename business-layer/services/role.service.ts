@@ -55,7 +55,7 @@ export class RoleService extends BaseService<Model<RoleAttributes>> {
     if (!updatedRole) {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }
-    return updatedRole.toJSON() as RoleResultDTO;
+    return updatedRole.toJSON();
   }
   //endregion
 
