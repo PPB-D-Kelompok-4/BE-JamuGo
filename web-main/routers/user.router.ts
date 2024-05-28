@@ -12,7 +12,7 @@ router.post('/login', (req, res) => userController.login(req, res));
 
 router.use(authenticate);
 
-router.get('/:pkid', (req, res) => userController.getById(req, res));
+router.get('/me', (req, res) => userController.getMe(req, res));
 router.get('/', (req, res) => userController.getAll(req, res));
 router.put('/:pkid', (req, res) => userController.update(req, res));
 router.get('/firebase', (req, res) => userController.getFirebaseData(req, res));

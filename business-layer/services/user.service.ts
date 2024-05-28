@@ -14,7 +14,7 @@ import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { UserResultVM, UserUpdateVM } from '../../helpers/view-models/user.vm';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET ?? 'your_jwt_secret_key';
 
 export class UserService extends BaseService<Model<UserAttributes>> {
   private userRepository: UserRepository;
@@ -128,8 +128,8 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   //endregion
 
   //region CRUD methods
-  public async findByIdUser(req: Request, pkid: number): Promise<UserResultDTO> {
-    const user = await this.userRepository.findByID(req, pkid);
+  public async findByUUIDUser(req: Request, uuid: string): Promise<UserResultDTO> { // New method to find user by UUID
+    const user = await this.userRepository.findByUUID(uuid);
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
     }
@@ -155,7 +155,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     }
 
     const users = await this.userRepository.findAll(req);
-    return users.map(user => user.toJSON() as UserResultDTO);
+    return users.map(user => user.toJSON());
   }
 
   async updateUser(
@@ -207,7 +207,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     }
 
     const userId = user.uid;
-    const userRecord = await this.userRepository.findByID(req, userId);
+    const userRecord = await this.userRepository.findByUUID(userId);
 
     if (!userRecord) {
       throw new Error(
@@ -217,7 +217,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       );
     }
 
-    const userJson = userRecord.toJSON() as UserAttributes;
+    const userJson = userRecord.toJSON();
     const { name, role_pkid } = userJson;
     const extension = path.extname(req.file.originalname);
     const fileName = `${name}-${role_pkid}-${userId}${extension}`;

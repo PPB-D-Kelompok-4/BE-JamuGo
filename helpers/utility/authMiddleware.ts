@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { auth } from './firebaseAdmin';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const JWT_SECRET = process.env.JWT_SECRET ?? 'your_jwt_secret_key';
 
 export const authenticate = async (
   req: Request,
@@ -29,7 +29,7 @@ export const authenticate = async (
     const user = await auth.getUser(decodedToken.uid);
     (req as any).user = {
       uid: user.uid,
-      name: user.displayName || user.email,
+      name: user.displayName ?? user.email,
       email: user.email,
     };
     next();

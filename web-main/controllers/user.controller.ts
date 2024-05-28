@@ -43,14 +43,14 @@ export class UserController extends BaseController {
     }
   }
 
-  public async getById(req: Request, res: Response): Promise<Response> {
+  public async getMe(req: Request, res: Response): Promise<Response> { // Changed method to getMe
     try {
-      const pkid = parseInt(req.params.pkid);
-      if (isNaN(pkid)) {
-        return this.sendErrorBadRequest(req, res);
+      const user = (req as any).user;
+      if (!user) {
+        return this.sendErrorUnauthorized(req, res);
       }
-      const user = await this.userService.findByIdUser(req, pkid);
-      const userResultVM = new UserResultVM(user);
+      const userData = await this.userService.findByUUIDUser(req, user.uid);
+      const userResultVM = new UserResultVM(userData);
       return this.sendSuccessGet(req, res, userResultVM.result, MessagesKey.SUCCESSGETBYID);
     } catch (error) {
       return this.handleError(req, res, error, 500);
