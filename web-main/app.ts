@@ -5,6 +5,8 @@ import db from '../infrastructure/models';
 import roleRouter from './routers/role.router';
 import userRouter from './routers/user.router';
 import menuRouter from './routers/menu.router';
+import path from 'path';
+
 dotenv.config();
 
 // Create an instance of express
@@ -15,6 +17,9 @@ app.use(cors());
 // Parse JSON and url-encoded query
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static files
+app.use('/assets', express.static(path.join(__dirname, '../../helpers/assets')));
 
 // Initialize database
 db.sequelize

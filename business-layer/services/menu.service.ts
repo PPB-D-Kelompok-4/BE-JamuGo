@@ -8,6 +8,12 @@ import { getMessage } from '../../helpers/messages/messagesUtil';
 import { checkAdminRole } from '../../helpers/utility/checkAdminRole';
 import { Model } from 'sequelize';
 import { MenuInputVM } from '../../helpers/view-models/menu.vm';
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const BASE_URL = process.env.BASE_URL;
 
 export class MenuService extends BaseService<Model<MenuAttributes>> {
   private menuRepository: MenuRepository;
@@ -24,7 +30,11 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
     await checkAdminRole(req);
     const menuVM = new MenuInputVM(menu);
     const createdMenu = await this.menuRepository.create(req, menuVM.menuData as MenuAttributes);
-    return createdMenu.toJSON() as MenuResultDTO;
+    const result = createdMenu.toJSON() as MenuResultDTO;
+    if (result.image_url) {
+      result.image_url = `${BASE_URL}/assets/image-menus/${path.basename(result.image_url)}`;
+    }
+    return result;
   }
 
   public async getMenuById(req: Request, pkid: number): Promise<MenuResultDTO> {
@@ -32,12 +42,22 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
     if (!menu) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
     }
-    return menu.toJSON() as MenuResultDTO;
+    const result = menu.toJSON() as MenuResultDTO;
+    if (result.image_url) {
+      result.image_url = `${BASE_URL}/assets/image-menus/${path.basename(result.image_url)}`;
+    }
+    return result;
   }
 
   public async getAllMenus(req: Request): Promise<MenuResultDTO[]> {
     const menus = await this.menuRepository.findAll(req);
-    return menus.map(menu => menu.toJSON() as MenuResultDTO);
+    return menus.map(menu => {
+      const result = menu.toJSON() as MenuResultDTO;
+      if (result.image_url) {
+        result.image_url = `${BASE_URL}/assets/image-menus/${path.basename(result.image_url)}`;
+      }
+      return result;
+    });
   }
 
   public async updateMenu(req: Request, pkid: number, data: MenuUpdateDTO): Promise<MenuResultDTO> {
@@ -50,7 +70,11 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
     if (!updatedMenu) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
     }
-    return updatedMenu.toJSON() as MenuResultDTO;
+    const result = updatedMenu.toJSON() as MenuResultDTO;
+    if (result.image_url) {
+      result.image_url = `${BASE_URL}/assets/image-menus/${path.basename(result.image_url)}`;
+    }
+    return result;
   }
 
   public async deleteMenu(req: Request, pkid: number): Promise<void> {
