@@ -4,6 +4,8 @@ import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { UserUpdateDTO } from '../../helpers/dtos/user.dto';
 import { UserInputVM, UserResultVM } from '../../helpers/view-models/user.vm';
+import path from 'node:path';
+import * as fs from 'fs';
 
 export class UserController extends BaseController {
   private userService: UserService;
@@ -41,6 +43,30 @@ export class UserController extends BaseController {
     }
   }
 
+  public async getById(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.params.pkid);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const user = await this.userService.findByIdUser(req, pkid);
+      const userResultVM = new UserResultVM(user);
+      return this.sendSuccessGet(req, res, userResultVM.result, MessagesKey.SUCCESSGETBYID);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async getAll(req: Request, res: Response): Promise<Response> {
+    try {
+      const users = await this.userService.findAllUser(req);
+      const userResultVMs = users.map(user => new UserResultVM(user));
+      return this.sendSuccessGet(req, res, userResultVMs.map(vm => vm.result), MessagesKey.SUCCESSGET);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
   public async update(req: Request, res: Response): Promise<Response> {
     try {
       const pkid = parseInt(req.params.pkid);
@@ -48,11 +74,7 @@ export class UserController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const userUpdate: UserUpdateDTO = req.body;
-      const updateResult = await this.userService.updateUser(
-        req,
-        pkid,
-        userUpdate,
-      );
+      const updateResult = await this.userService.updateUser(req, pkid, userUpdate);
       return this.sendSuccessUpdate(req, res, updateResult);
     } catch (error) {
       return this.handleError(req, res, error, 500);
@@ -62,12 +84,7 @@ export class UserController extends BaseController {
   public async getFirebaseData(req: Request, res: Response): Promise<Response> {
     try {
       const firebaseData = await this.userService.getUserDataFromFirebase(req);
-      return this.sendSuccessGet(
-        req,
-        res,
-        firebaseData,
-        MessagesKey.SUCCESSGET,
-      );
+      return this.sendSuccessGet(req, res, firebaseData, MessagesKey.SUCCESSGET);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -80,27 +97,33 @@ export class UserController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const resetLink = await this.userService.resetPassword(req, email);
-      return this.sendSuccessGet(
-        req,
-        res,
-        { resetLink },
-        MessagesKey.SUCCESSRESETPASSWORD,
-      );
+      return this.sendSuccessGet(req, res, { resetLink }, MessagesKey.SUCCESSRESETPASSWORD);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async uploadProfileImage(
-    req: Request,
-    res: Response,
-  ): Promise<Response> {
+  public async uploadProfileImage(req: Request, res: Response): Promise<Response> {
     try {
       const user = await this.userService.uploadProfileImage(req);
       const userResultVM = new UserResultVM(user);
       return this.sendSuccessUpdate(req, res, userResultVM.result);
     } catch (error) {
       return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async getProfileImage(req: Request, res: Response): Promise<void> {
+    try {
+      const { filename } = req.params;
+      const imagePath = path.resolve(__dirname, '../../helpers/assets/image-profiles', filename);
+      if (fs.existsSync(imagePath)) {
+        return res.sendFile(imagePath);
+      } else {
+        this.sendErrorNotFound(req, res);
+      }
+    } catch (error) {
+      this.handleError(req, res, error, 500);
     }
   }
 }

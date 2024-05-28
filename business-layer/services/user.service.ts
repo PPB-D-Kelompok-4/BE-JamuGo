@@ -8,11 +8,7 @@ import { BaseService } from '../common/base.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as jwt from 'jsonwebtoken';
-import {
-  UserInputDTO,
-  UserResultDTO,
-  UserUpdateDTO,
-} from '../../helpers/dtos/user.dto';
+import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
@@ -123,9 +119,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
         throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
       }
 
-      const token = jwt.sign({ uid: userRecord.uid }, JWT_SECRET, { expiresIn: '5d' });
-
-      return token;
+      return jwt.sign({ uid: userRecord.uid }, JWT_SECRET, { expiresIn: '5d' });
     } catch (error) {
       throw new Error(getMessage(req, MessagesKey.INVALIDCREDENTIALS));
     }
@@ -133,6 +127,37 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   //endregion
 
   //region CRUD methods
+  public async findByIdUser(req: Request, pkid: number): Promise<UserResultDTO> {
+    const user = await this.userRepository.findByID(req, pkid);
+    if (!user) {
+      throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
+    }
+    return user.toJSON();
+  }
+
+  public async findAllUser(req: Request): Promise<UserResultDTO[]> {
+    const user = (req as any).user;
+    if (!user) {
+      throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
+    }
+
+    const localUser = await this.userRepository.findByUUID(user.uid);
+    if (!localUser) {
+      throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
+    }
+
+    const rolePkid = localUser.get('role_pkid');
+    const adminRole = await this.roleRepository.findByName('admin');
+
+    if (rolePkid !== adminRole?.get('pkid')) {
+      throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
+    }
+
+    const users = await this.userRepository.findAll(req);
+    return users.map(user => user.toJSON() as UserResultDTO);
+  }
+
+
   async updateUser(
     req: Request,
     pkid: number,
@@ -144,7 +169,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }
     const updatedUser = affectedRows[0];
-    return updatedUser.toJSON() as UserResultDTO;
+    return updatedUser.toJSON();
   }
 
   async getUserDataFromFirebase(req: Request): Promise<UserResultDTO> {
