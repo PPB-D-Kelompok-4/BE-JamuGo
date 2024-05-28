@@ -4,6 +4,7 @@ import cors from 'cors';
 import db from '../infrastructure/models';
 import roleRouter from './routers/role.router';
 import userRouter from './routers/user.router';
+import menuRouter from './routers/menu.router';
 dotenv.config();
 
 // Create an instance of express
@@ -24,6 +25,7 @@ db.sequelize
 // Define routes
 app.use('/api/role', roleRouter);
 app.use('/api/user', userRouter);
+app.use('/api/menu', menuRouter);
 
 // Set the port
 const PORT = process.env.PORT;

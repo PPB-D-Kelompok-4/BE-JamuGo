@@ -40,15 +40,15 @@ export class MenuRepository extends BaseRepository<Model<MenuAttributes>> {
   async create(
     req: Request,
     entity: CreationAttributes<Model<MenuAttributes>>,
-  ): Promise<Model<MenuAttributes> | string> {
-    return super.create(req, entity);
+  ): Promise<Model<MenuAttributes>> {
+    return await this.model.create(entity);
   }
 
   async bulkCreate(
     req: Request,
     entities: CreationAttributes<Model<MenuAttributes>>[],
-  ): Promise<Model<MenuAttributes>[] | string> {
-    return super.bulkCreate(req, entities);
+  ): Promise<Model<MenuAttributes>[]> {
+    return await this.model.bulkCreate(entities);
   }
   //endregion
 
