@@ -3,7 +3,7 @@ import { UserService } from '../../business-layer/services/user.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { UserUpdateDTO } from '../../helpers/dtos/user.dto';
-import { UserInputVM, UserResultVM } from '../../helpers/view-models/user.vm';
+import { UserInputVM, UserResultVM, UserUpdateVM } from '../../helpers/view-models/user.vm';
 import path from 'node:path';
 import * as fs from 'fs';
 
@@ -74,8 +74,10 @@ export class UserController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const userUpdate: UserUpdateDTO = req.body;
-      const updateResult = await this.userService.updateUser(req, pkid, userUpdate);
-      return this.sendSuccessUpdate(req, res, updateResult);
+      const userUpdateVM = new UserUpdateVM(userUpdate);
+      const updateResult = await this.userService.updateUser(req, pkid, userUpdateVM.userData);
+      const userResultVM = new UserResultVM(updateResult);
+      return this.sendSuccessUpdate(req, res, userResultVM.result);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

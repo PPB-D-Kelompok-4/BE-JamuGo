@@ -12,6 +12,7 @@ import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/u
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
+import { UserResultVM, UserUpdateVM } from '../../helpers/view-models/user.vm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
@@ -157,19 +158,24 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     return users.map(user => user.toJSON() as UserResultDTO);
   }
 
-
   async updateUser(
     req: Request,
     pkid: number,
     data: UserUpdateDTO,
   ): Promise<UserResultDTO> {
-    const [numberOfAffectedRows, affectedRows] =
-      await this.userRepository.update(req, pkid, data);
+    const userUpdateVM = new UserUpdateVM(data);
+    const [numberOfAffectedRows] =
+      await this.userRepository.update(req, pkid, userUpdateVM.userData);
     if (numberOfAffectedRows === 0) {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }
-    const updatedUser = affectedRows[0];
-    return updatedUser.toJSON();
+
+    const updatedUser = await this.userRepository.findByID(req, pkid);
+    if (!updatedUser) {
+      throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
+    }
+
+    return new UserResultVM(updatedUser.toJSON()).result;
   }
 
   async getUserDataFromFirebase(req: Request): Promise<UserResultDTO> {
