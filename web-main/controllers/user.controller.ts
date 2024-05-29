@@ -43,7 +43,7 @@ export class UserController extends BaseController {
     }
   }
 
-  public async getMe(req: Request, res: Response): Promise<Response> { // Changed method to getMe
+  public async getMe(req: Request, res: Response): Promise<Response> {
     try {
       const user = (req as any).user;
       if (!user) {

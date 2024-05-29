@@ -10,6 +10,7 @@ import * as path from 'path';
 import * as jwt from 'jsonwebtoken';
 import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
+import { CartRepository } from '../../data-access/repositories/cart.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { UserResultVM, UserUpdateVM } from '../../helpers/view-models/user.vm';
@@ -19,11 +20,13 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'your_jwt_secret_key';
 export class UserService extends BaseService<Model<UserAttributes>> {
   private userRepository: UserRepository;
   private roleRepository: RoleRepository;
+  private cartRepository: CartRepository;
 
   constructor() {
     super(new UserRepository());
     this.userRepository = new UserRepository();
     this.roleRepository = new RoleRepository();
+    this.cartRepository = new CartRepository();
   }
 
   //region Helper methods
@@ -95,6 +98,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     let createdUser;
     try {
       createdUser = await this.userRepository.create(req, user);
+      await this.cartRepository.create(req, { pkid: 0, user_pkid: createdUser.getDataValue('pkid'), total_price: 0 });
     } catch (error) {
       await auth.deleteUser(userRecord.uid);
       throw new Error(getMessage(req, MessagesKey.ERRORCREATE));
@@ -128,7 +132,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   //endregion
 
   //region CRUD methods
-  public async findByUUIDUser(req: Request, uuid: string): Promise<UserResultDTO> { // New method to find user by UUID
+  public async findByUUIDUser(req: Request, uuid: string): Promise<UserResultDTO> {
     const user = await this.userRepository.findByUUID(uuid);
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
