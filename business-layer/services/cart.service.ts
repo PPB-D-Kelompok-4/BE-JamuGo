@@ -6,7 +6,7 @@ import { UserRepository } from '../../data-access/repositories/user.repository';
 import { CartAttributes } from '../../infrastructure/models/cart.model';
 import { BaseService } from '../common/base.service';
 import { CartUpdateDTO, CartResultDTO, CartItemInputDTO, CartItemUpdateDTO, CartItemResultDTO } from '../../helpers/dtos/cart.dto';
-import { CartUpdateVM, CartResultVM, CartItemInputVM, CartItemUpdateVM, CartItemResultVM } from '../../helpers/view-models/cart.vm';
+import { CartUpdateVM, CartItemInputVM, CartItemUpdateVM } from '../../helpers/view-models/cart.vm';
 import { Model } from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
@@ -111,12 +111,10 @@ export class CartService extends BaseService<Model<CartAttributes>> {
         const result = await this.cartItemRepository.create(req, cartItemVM.cartItemData as CartItemAttributes);
         if (result instanceof Model) {
           createdOrUpdatedCartItem = result;
+        } else {
+          throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
         }
       }
-    }
-
-    if (cartItem.quantity > 0 && !createdOrUpdatedCartItem) {
-      throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
     }
 
     await this.updateTotalPrice(req, cart[0].getDataValue('pkid'));
