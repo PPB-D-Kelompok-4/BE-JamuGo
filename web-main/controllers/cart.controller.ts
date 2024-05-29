@@ -47,7 +47,7 @@ export class CartController extends BaseController {
         const cartItemResultVM = new CartItemResultVM(cartItem);
         return this.sendSuccessCreate(req, res, cartItemResultVM.result, cartItem.pkid);
       } else {
-        return this.sendSuccessCreate(req, res, {}, MessagesKey.ERRORHARDDELETING);
+        return this.sendSuccessCreate(req, res, {}, MessagesKey.SUCCESSHARDDELETE);
       }
     } catch (error) {
       return this.handleError(req, res, error, 500);
