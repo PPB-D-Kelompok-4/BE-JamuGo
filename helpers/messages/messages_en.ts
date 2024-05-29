@@ -12,6 +12,7 @@ export const messages_en = {
     'Failed to create {0}. The creation method did not return a valid model instance.',
   [MessagesKey.ERRORCREATEUSER]: 'Failed to create user in Firebase.',
   [MessagesKey.EMAILALREADYEXISTS]: 'Email already exists.',
+  [MessagesKey.IMAGEDELETIONERROR]: 'Failed to delete image file.',
 
   // Common Success messages
   [MessagesKey.SUCCESSGET]: 'Data has been found.',

@@ -12,6 +12,7 @@ export const messages_id = {
     'Gagal membuat {0}. Metode pembuatan tidak mengembalikan instansi model yang valid.',
   [MessagesKey.ERRORCREATEUSER]: 'Gagal membuat pengguna di Firebase.',
   [MessagesKey.EMAILALREADYEXISTS]: 'Email sudah digunakan.',
+  [MessagesKey.IMAGEDELETIONERROR]: 'Gagal menghapus file gambar.',
 
   // Common Success messages
   [MessagesKey.SUCCESSGET]: 'Data telah ditemukan.',
