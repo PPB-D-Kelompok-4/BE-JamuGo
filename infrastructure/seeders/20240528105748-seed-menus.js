@@ -118,7 +118,7 @@ module.exports = {
           is_deleted: false,
         },
         {
-          name: 'Teh Bung Telang',
+          name: 'Teh Bunga Telang',
           description: 'Minuman berwarna biru alami yang terbuat dari bunga telang, dikenal dapat membantu mengurangi stres dan meningkatkan kualitas tidur.',
           price: 15000,
           image_url: `${BASE_URL}/assets/image-menus/teh_bunga_telang.jpg`,
