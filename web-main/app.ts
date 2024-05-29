@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve static files
-app.use('/assets', express.static(path.join(__dirname, '../../helpers/assets')));
+app.use('/assets', express.static(path.join(__dirname, '../helpers/assets')));
 
 // Initialize database
 db.sequelize
