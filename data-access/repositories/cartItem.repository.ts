@@ -83,5 +83,12 @@ export class CartItemRepository extends BaseRepository<
   async restore(req: Request, pkid: number): Promise<void> {
     return super.restore(req, pkid);
   }
+
+  async bulkHardDelete(
+    req: Request,
+    criteria: WhereOptions<CartItemAttributes>,
+  ): Promise<void> {
+    await this.model.destroy({ where: criteria, force: true });
+  }
   //endregion
 }

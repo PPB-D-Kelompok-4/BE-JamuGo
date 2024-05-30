@@ -47,4 +47,6 @@ export const messages_en = {
   [MessagesKey.USERNOTFOUND]: 'User not found.',
   [MessagesKey.USERUPDATENOTFOUND]: 'User update not found.',
   [MessagesKey.INVALIDEMAIL]: 'Invalid email format.',
+  [MessagesKey.ORDERALREADYCANCELLED]: 'Order has already been cancelled.',
+  [MessagesKey.ORDERCANCELLED]: 'Order has been successfully cancelled.',
 };

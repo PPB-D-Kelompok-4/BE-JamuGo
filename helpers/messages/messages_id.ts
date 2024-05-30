@@ -49,4 +49,6 @@ export const messages_id = {
   [MessagesKey.USERNOTFOUND]: 'Pengguna tidak ditemukan.',
   [MessagesKey.USERUPDATENOTFOUND]: 'Pembaruan pengguna tidak ditemukan.',
   [MessagesKey.INVALIDEMAIL]: 'Format email tidak valid.',
+  [MessagesKey.ORDERALREADYCANCELLED]: 'Pesanan sudah dibatalkan.',
+  [MessagesKey.ORDERCANCELLED]: 'Pesanan berhasil dibatalkan.',
 };
