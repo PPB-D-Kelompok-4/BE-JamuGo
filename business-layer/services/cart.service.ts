@@ -5,8 +5,8 @@ import { MenuRepository } from '../../data-access/repositories/menu.repository';
 import { UserRepository } from '../../data-access/repositories/user.repository';
 import { CartAttributes } from '../../infrastructure/models/cart.model';
 import { BaseService } from '../common/base.service';
-import { CartUpdateDTO, CartResultDTO, CartItemInputDTO, CartItemUpdateDTO, CartItemResultDTO } from '../../helpers/dtos/cart.dto';
-import { CartUpdateVM, CartItemInputVM, CartItemUpdateVM } from '../../helpers/view-models/cart.vm';
+import { CartResultDTO, CartItemInputDTO, CartItemResultDTO } from '../../helpers/dtos/cart.dto';
+import { CartItemInputVM } from '../../helpers/view-models/cart.vm';
 import { Model } from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
@@ -49,19 +49,6 @@ export class CartService extends BaseService<Model<CartAttributes>> {
     return cartResult;
   }
 
-  public async updateCart(req: Request, pkid: number, data: CartUpdateDTO): Promise<CartResultDTO> {
-    const cartVM = new CartUpdateVM(data);
-    const [numberOfAffectedRows] = await this.cartRepository.update(req, pkid, cartVM.cartData as Partial<CartAttributes>);
-    if (numberOfAffectedRows === 0) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-    const updatedCart = await this.cartRepository.findByID(req, pkid);
-    if (!updatedCart) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-    return updatedCart.toJSON() as CartResultDTO;
-  }
-
   public async addItemToCart(req: Request, cartItem: CartItemInputDTO): Promise<CartItemResultDTO | null> {
     const user = (req as any).user;
     const dbUser = await this.userRepository.findByUUID(user.uid);
@@ -93,27 +80,25 @@ export class CartService extends BaseService<Model<CartAttributes>> {
           createdOrUpdatedCartItem = updatedItems[0];
         }
       }
-    } else {
-      if (cartItem.quantity > 0) {
-        const menu = await this.menuRepository.findByID(req, cartItem.menu_pkid);
-        if (!menu) {
-          throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-        }
-        const price = menu.getDataValue('price');
-        const cartItemData = {
-          cart_pkid: cart[0].getDataValue('pkid'),
-          menu_pkid: cartItem.menu_pkid,
-          quantity: cartItem.quantity,
-          price: price * cartItem.quantity,
-        };
+    } else if (cartItem.quantity > 0) {
+      const menu = await this.menuRepository.findByID(req, cartItem.menu_pkid);
+      if (!menu) {
+        throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+      }
+      const price = menu.getDataValue('price');
+      const cartItemData = {
+        cart_pkid: cart[0].getDataValue('pkid'),
+        menu_pkid: cartItem.menu_pkid,
+        quantity: cartItem.quantity,
+        price: price * cartItem.quantity,
+      };
 
-        const cartItemVM = new CartItemInputVM(cartItemData);
-        const result = await this.cartItemRepository.create(req, cartItemVM.cartItemData as CartItemAttributes);
-        if (result instanceof Model) {
-          createdOrUpdatedCartItem = result;
-        } else {
-          throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
-        }
+      const cartItemVM = new CartItemInputVM(cartItemData);
+      const result = await this.cartItemRepository.create(req, cartItemVM.cartItemData as CartItemAttributes);
+      if (result instanceof Model) {
+        createdOrUpdatedCartItem = result;
+      } else {
+        throw new Error(getMessage(req, MessagesKey.ERRORCREATION));
       }
     }
 
@@ -125,20 +110,6 @@ export class CartService extends BaseService<Model<CartAttributes>> {
     const cartItems = await this.cartItemRepository.where(req, { cart_pkid: cartPkid });
     const totalPrice = cartItems.reduce((sum, item) => sum + parseFloat(String(item.getDataValue('price'))), 0);
     await this.cartRepository.update(req, cartPkid, { total_price: totalPrice });
-  }
-
-  public async updateCartItem(req: Request, pkid: number, data: CartItemUpdateDTO): Promise<CartItemResultDTO> {
-    const cartItemVM = new CartItemUpdateVM(data);
-    const [numberOfAffectedRows] = await this.cartItemRepository.update(req, pkid, cartItemVM.cartItemData as Partial<CartItemAttributes>);
-    if (numberOfAffectedRows === 0) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-    const updatedCartItem = await this.cartItemRepository.findByID(req, pkid);
-    if (!updatedCartItem) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-    await this.updateTotalPrice(req, updatedCartItem.getDataValue('cart_pkid'));
-    return updatedCartItem.toJSON() as CartItemResultDTO;
   }
 
   public async deleteCartItem(req: Request, pkid: number): Promise<void> {

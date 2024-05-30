@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { CartService } from '../../business-layer/services/cart.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
-import { CartUpdateDTO, CartItemInputDTO, CartItemUpdateDTO } from '../../helpers/dtos/cart.dto';
-import { CartUpdateVM, CartResultVM, CartItemInputVM, CartItemUpdateVM, CartItemResultVM } from '../../helpers/view-models/cart.vm';
+import { CartItemInputDTO } from '../../helpers/dtos/cart.dto';
+import { CartResultVM, CartItemInputVM, CartItemResultVM } from '../../helpers/view-models/cart.vm';
 
 export class CartController extends BaseController {
   private cartService: CartService;
@@ -23,21 +23,6 @@ export class CartController extends BaseController {
     }
   }
 
-  public async update(req: Request, res: Response): Promise<Response> {
-    try {
-      const pkid = parseInt(req.params.pkid);
-      if (isNaN(pkid)) {
-        return this.sendErrorBadRequest(req, res);
-      }
-      const cartUpdate = new CartUpdateVM(req.body as CartUpdateDTO);
-      const cart = await this.cartService.updateCart(req, pkid, cartUpdate.cartData);
-      const cartResultVM = new CartResultVM(cart);
-      return this.sendSuccessUpdate(req, res, cartResultVM.result);
-    } catch (error) {
-      return this.handleError(req, res, error, 500);
-    }
-  }
-
   public async addItem(req: Request, res: Response): Promise<Response> {
     try {
       const cartItemInput = new CartItemInputVM(req.body as CartItemInputDTO);
@@ -49,21 +34,6 @@ export class CartController extends BaseController {
       } else {
         return this.sendSuccessCreate(req, res, {}, MessagesKey.SUCCESSHARDDELETE);
       }
-    } catch (error) {
-      return this.handleError(req, res, error, 500);
-    }
-  }
-
-  public async updateItem(req: Request, res: Response): Promise<Response> {
-    try {
-      const pkid = parseInt(req.params.pkid);
-      if (isNaN(pkid)) {
-        return this.sendErrorBadRequest(req, res);
-      }
-      const cartItemUpdate = new CartItemUpdateVM(req.body as CartItemUpdateDTO);
-      const cartItem = await this.cartService.updateCartItem(req, pkid, cartItemUpdate.cartItemData);
-      const cartItemResultVM = new CartItemResultVM(cartItem);
-      return this.sendSuccessUpdate(req, res, cartItemResultVM.result);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
