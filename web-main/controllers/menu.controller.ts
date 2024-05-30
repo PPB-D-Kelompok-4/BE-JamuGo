@@ -3,7 +3,11 @@ import { MenuService } from '../../business-layer/services/menu.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { MenuInputDTO, MenuUpdateDTO } from '../../helpers/dtos/menu.dto';
-import { MenuInputVM, MenuResultVM, MenuUpdateVM } from '../../helpers/view-models/menu.vm';
+import {
+  MenuInputVM,
+  MenuResultVM,
+  MenuUpdateVM,
+} from '../../helpers/view-models/menu.vm';
 
 export class MenuController extends BaseController {
   private menuService: MenuService;
@@ -32,7 +36,12 @@ export class MenuController extends BaseController {
       }
       const menu = await this.menuService.getMenuById(req, pkid);
       const menuResultVM = new MenuResultVM(menu);
-      return this.sendSuccessGet(req, res, menuResultVM.result, MessagesKey.SUCCESSGETBYID);
+      return this.sendSuccessGet(
+        req,
+        res,
+        menuResultVM.result,
+        MessagesKey.SUCCESSGETBYID,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -41,8 +50,13 @@ export class MenuController extends BaseController {
   public async getAll(req: Request, res: Response): Promise<Response> {
     try {
       const menus = await this.menuService.getAllMenus(req);
-      const menuResultVMs = menus.map(menu => new MenuResultVM(menu));
-      return this.sendSuccessGet(req, res, menuResultVMs.map(vm => vm.result), MessagesKey.SUCCESSGET);
+      const menuResultVMs = menus.map((menu) => new MenuResultVM(menu));
+      return this.sendSuccessGet(
+        req,
+        res,
+        menuResultVMs.map((vm) => vm.result),
+        MessagesKey.SUCCESSGET,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -55,7 +69,11 @@ export class MenuController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
       const menuUpdate = new MenuUpdateVM(req.body as MenuUpdateDTO);
-      const menu = await this.menuService.updateMenu(req, pkid, menuUpdate.menuData);
+      const menu = await this.menuService.updateMenu(
+        req,
+        pkid,
+        menuUpdate.menuData,
+      );
       const menuResultVM = new MenuResultVM(menu);
       return this.sendSuccessUpdate(req, res, menuResultVM.result);
     } catch (error) {

@@ -3,7 +3,11 @@ import { RoleService } from '../../business-layer/services/role.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { RoleInputDTO, RoleUpdateDTO } from '../../helpers/dtos/role.dto';
-import { RoleInputVM, RoleResultVM, RoleUpdateVM } from '../../helpers/view-models/role.vm';
+import {
+  RoleInputVM,
+  RoleResultVM,
+  RoleUpdateVM,
+} from '../../helpers/view-models/role.vm';
 
 export class RoleController extends BaseController {
   private roleService: RoleService;
@@ -95,7 +99,11 @@ export class RoleController extends BaseController {
       }
       const vm: RoleUpdateDTO = req.body;
       const roleVM = new RoleUpdateVM(vm);
-      const updateResult = await this.roleService.updateRole(req, pkid, roleVM.roleData);
+      const updateResult = await this.roleService.updateRole(
+        req,
+        pkid,
+        roleVM.roleData,
+      );
       const roleResultVM = new RoleResultVM(updateResult);
       return this.sendSuccessUpdate(req, res, roleResultVM.result);
     } catch (error) {

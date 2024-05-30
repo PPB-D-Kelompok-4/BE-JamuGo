@@ -16,8 +16,14 @@ router.get('/me', (req, res) => userController.getMe(req, res));
 router.get('/', (req, res) => userController.getAll(req, res));
 router.put('/:pkid', (req, res) => userController.update(req, res));
 router.get('/firebase', (req, res) => userController.getFirebaseData(req, res));
-router.post('/reset-password', (req, res) => userController.resetPassword(req, res));
-router.post('/upload-profile-image', upload.single('image'), (req, res) => userController.uploadProfileImage(req, res));
-router.get('/profile-image/:filename', (req, res) => userController.getProfileImage(req, res));
+router.post('/reset-password', (req, res) =>
+  userController.resetPassword(req, res),
+);
+router.post('/upload-profile-image', upload.single('image'), (req, res) =>
+  userController.uploadProfileImage(req, res),
+);
+router.get('/profile-image/:filename', (req, res) =>
+  userController.getProfileImage(req, res),
+);
 
 export default router;

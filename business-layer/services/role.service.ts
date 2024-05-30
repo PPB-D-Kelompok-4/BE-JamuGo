@@ -3,7 +3,11 @@ import { BaseService } from '../common/base.service';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { RoleAttributes } from '../../infrastructure/models/role.model';
 import { Model } from 'sequelize';
-import { RoleInputDTO, RoleResultDTO, RoleUpdateDTO } from '../../helpers/dtos/role.dto';
+import {
+  RoleInputDTO,
+  RoleResultDTO,
+  RoleUpdateDTO,
+} from '../../helpers/dtos/role.dto';
 import { RoleInputVM, RoleUpdateVM } from '../../helpers/view-models/role.vm';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';

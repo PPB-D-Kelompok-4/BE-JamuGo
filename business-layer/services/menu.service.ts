@@ -2,7 +2,11 @@ import { Request } from 'express';
 import { MenuRepository } from '../../data-access/repositories/menu.repository';
 import { MenuAttributes } from '../../infrastructure/models/menu.model';
 import { BaseService } from '../common/base.service';
-import { MenuInputDTO, MenuResultDTO, MenuUpdateDTO } from '../../helpers/dtos/menu.dto';
+import {
+  MenuInputDTO,
+  MenuResultDTO,
+  MenuUpdateDTO,
+} from '../../helpers/dtos/menu.dto';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { checkAdminRole } from '../../helpers/utility/checkAdminRole';
@@ -28,10 +32,7 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
     return fileName.replace(/\s+/g, '_');
   }
 
-  async createMenu(
-    req: Request,
-    menu: MenuInputDTO,
-  ): Promise<MenuResultDTO> {
+  async createMenu(req: Request, menu: MenuInputDTO): Promise<MenuResultDTO> {
     await checkAdminRole(req);
 
     const menuVM = new MenuInputVM(menu);
@@ -43,7 +44,10 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
       menuVM.menuData.image_url = `assets/image-menus/${sanitizedFileName}`;
     }
 
-    const createdMenu = await this.menuRepository.create(req, menuVM.menuData as MenuAttributes);
+    const createdMenu = await this.menuRepository.create(
+      req,
+      menuVM.menuData as MenuAttributes,
+    );
     const result = createdMenu.toJSON() as MenuResultDTO;
     if (result.image_url) {
       result.image_url = `${BASE_URL}/${result.image_url}`;
@@ -65,7 +69,7 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
 
   public async getAllMenus(req: Request): Promise<MenuResultDTO[]> {
     const menus = await this.menuRepository.findAll(req);
-    return menus.map(menu => {
+    return menus.map((menu) => {
       const result = menu.toJSON() as MenuResultDTO;
       if (result.image_url) {
         result.image_url = `${BASE_URL}/assets/image-menus/${path.basename(result.image_url)}`;
@@ -74,7 +78,11 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
     });
   }
 
-  public async updateMenu(req: Request, pkid: number, data: MenuUpdateDTO): Promise<MenuResultDTO> {
+  public async updateMenu(
+    req: Request,
+    pkid: number,
+    data: MenuUpdateDTO,
+  ): Promise<MenuResultDTO> {
     await checkAdminRole(req);
 
     const menuVM = new MenuUpdateVM(data);
@@ -86,7 +94,11 @@ export class MenuService extends BaseService<Model<MenuAttributes>> {
       menuVM.menuData.image_url = `assets/image-menus/${sanitizedFileName}`;
     }
 
-    const [numberOfAffectedRows] = await this.menuRepository.update(req, pkid, menuVM.menuData as Partial<MenuAttributes>);
+    const [numberOfAffectedRows] = await this.menuRepository.update(
+      req,
+      pkid,
+      menuVM.menuData as Partial<MenuAttributes>,
+    );
     if (numberOfAffectedRows === 0) {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }

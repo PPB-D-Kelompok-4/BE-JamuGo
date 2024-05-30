@@ -17,11 +17,11 @@ admin.initializeApp({
 module.exports = {
   up: async (queryInterface) => {
     const roles = await queryInterface.sequelize.query(
-      `SELECT pkid, name FROM roles;`
+      `SELECT pkid, name FROM roles;`,
     );
 
     const roleMap = {};
-    roles[0].forEach(role => {
+    roles[0].forEach((role) => {
       roleMap[role.name] = role.pkid;
     });
 
@@ -57,7 +57,10 @@ module.exports = {
           password: user.password,
         });
       } catch (error) {
-        console.error(`Failed to create Firebase user for ${user.email}`, error);
+        console.error(
+          `Failed to create Firebase user for ${user.email}`,
+          error,
+        );
         continue;
       }
 

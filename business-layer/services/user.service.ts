@@ -8,7 +8,11 @@ import { BaseService } from '../common/base.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as jwt from 'jsonwebtoken';
-import { UserInputDTO, UserResultDTO, UserUpdateDTO } from '../../helpers/dtos/user.dto';
+import {
+  UserInputDTO,
+  UserResultDTO,
+  UserUpdateDTO,
+} from '../../helpers/dtos/user.dto';
 import { RoleRepository } from '../../data-access/repositories/role.repository';
 import { CartRepository } from '../../data-access/repositories/cart.repository';
 import { formatMessage, getMessage } from '../../helpers/messages/messagesUtil';
@@ -98,7 +102,11 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     let createdUser;
     try {
       createdUser = await this.userRepository.create(req, user);
-      await this.cartRepository.create(req, { pkid: 0, user_pkid: createdUser.getDataValue('pkid'), total_price: 0 });
+      await this.cartRepository.create(req, {
+        pkid: 0,
+        user_pkid: createdUser.getDataValue('pkid'),
+        total_price: 0,
+      });
     } catch (error) {
       await auth.deleteUser(userRecord.uid);
       throw new Error(getMessage(req, MessagesKey.ERRORCREATE));
@@ -132,7 +140,10 @@ export class UserService extends BaseService<Model<UserAttributes>> {
   //endregion
 
   //region CRUD methods
-  public async findByUUIDUser(req: Request, uuid: string): Promise<UserResultDTO> {
+  public async findByUUIDUser(
+    req: Request,
+    uuid: string,
+  ): Promise<UserResultDTO> {
     const user = await this.userRepository.findByUUID(uuid);
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.USERNOTFOUND));
@@ -159,7 +170,7 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     }
 
     const users = await this.userRepository.findAll(req);
-    return users.map(user => user.toJSON());
+    return users.map((user) => user.toJSON());
   }
 
   async updateUser(
@@ -168,8 +179,11 @@ export class UserService extends BaseService<Model<UserAttributes>> {
     data: UserUpdateDTO,
   ): Promise<UserResultDTO> {
     const userUpdateVM = new UserUpdateVM(data);
-    const [numberOfAffectedRows] =
-      await this.userRepository.update(req, pkid, userUpdateVM.userData);
+    const [numberOfAffectedRows] = await this.userRepository.update(
+      req,
+      pkid,
+      userUpdateVM.userData,
+    );
     if (numberOfAffectedRows === 0) {
       throw new Error(getMessage(req, MessagesKey.USERUPDATENOTFOUND));
     }
