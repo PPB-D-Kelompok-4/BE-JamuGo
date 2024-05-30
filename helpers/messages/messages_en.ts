@@ -49,4 +49,5 @@ export const messages_en = {
   [MessagesKey.INVALIDEMAIL]: 'Invalid email format.',
   [MessagesKey.ORDERALREADYCANCELLED]: 'Order has already been cancelled.',
   [MessagesKey.ORDERCANCELLED]: 'Order has been successfully cancelled.',
+  [MessagesKey.INVALIDORDERSTATUS]: 'Invalid order status.',
 };

@@ -51,4 +51,5 @@ export const messages_id = {
   [MessagesKey.INVALIDEMAIL]: 'Format email tidak valid.',
   [MessagesKey.ORDERALREADYCANCELLED]: 'Pesanan sudah dibatalkan.',
   [MessagesKey.ORDERCANCELLED]: 'Pesanan berhasil dibatalkan.',
+  [MessagesKey.INVALIDORDERSTATUS]: 'Status pesanan tidak valid.',
 };

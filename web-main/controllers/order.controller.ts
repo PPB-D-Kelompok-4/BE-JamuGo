@@ -4,6 +4,7 @@ import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { OrderInputDTO } from '../../helpers/dtos/order.dto';
 import { OrderInputVM, OrderResultVM } from '../../helpers/view-models/order.vm';
+import { OrderStatus } from '../../helpers/enum/orderStatus.enum';
 
 export class OrderController extends BaseController {
   private orderService: OrderService;
@@ -57,6 +58,39 @@ export class OrderController extends BaseController {
       const order = await this.orderService.cancelOrder(req, pkid);
       const orderResultVM = new OrderResultVM(order);
       return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.ORDERCANCELLED);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async getLastOrderByUser(req: Request, res: Response): Promise<Response> {
+    try {
+      const order = await this.orderService.getLastOrderByUser(req);
+      if (!order) {
+        return this.sendSuccessGet(req, res, null, MessagesKey.NODATAFOUND);
+      }
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSGET);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async updateOrderStatus(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.params.pkid);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+
+      const { status } = req.body;
+      if (!status || !Object.values(OrderStatus).includes(status)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+
+      const order = await this.orderService.updateOrderStatus(req, pkid, status);
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSUPDATE);
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

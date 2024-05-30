@@ -16,6 +16,7 @@ import { OrderItemAttributes } from '../../infrastructure/models/orderItem.model
 import { OrderHeaderStatus } from '../../helpers/enum/orderHeaderStatus.enum';
 import { OrderStatus } from '../../helpers/enum/orderStatus.enum';
 import { OrderStatusAttributes } from '../../infrastructure/models/orderStatus.model';
+import { checkAdminRole } from '../../helpers/utility/checkAdminRole';
 
 interface OrderResultWithItemsDTO extends OrderResultDTO {
   items: OrderItemResultDTO[];
@@ -173,6 +174,7 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     }
 
     const order = await this.orderRepository.findByID(req, pkid);
+
     if (!order || order.getDataValue('user_pkid') !== dbUser.getDataValue('pkid')) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
     }
@@ -191,4 +193,60 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
 
     return order.toJSON() as OrderResultDTO;
   }
+
+  public async getLastOrderByUser(req: Request): Promise<OrderResultWithItemsDTO | null> {
+    const user = (req as any).user;
+    if (!user) {
+      throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
+    }
+
+    const dbUser = await this.userRepository.findByUUID(user.uid);
+    if (!dbUser) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    const lastOrder = await this.orderRepository.findOne(req, {
+      where: { user_pkid: dbUser.getDataValue('pkid') },
+      order: [['created_date', 'DESC']],
+    });
+
+    if (!lastOrder) {
+      return null;
+    }
+
+    const orderItems = await this.orderItemRepository.where(req, {
+      order_pkid: lastOrder.getDataValue('pkid'),
+    });
+
+    const orderStatus = await this.orderStatusRepository.where(req, {
+      order_pkid: lastOrder.getDataValue('pkid'),
+    });
+
+    const orderResult = lastOrder.toJSON() as OrderResultWithItemsDTO;
+    orderResult.items = orderItems.map((item) => item.toJSON() as OrderItemResultDTO);
+    orderResult.orderStatus = orderStatus.length ? orderStatus[0].toJSON() as OrderStatusResultDTO : undefined;
+
+    return orderResult;
+  }
+
+  public async updateOrderStatus(req: Request, pkid: number, status: OrderStatus): Promise<OrderResultDTO> {
+    await checkAdminRole(req);
+
+    const order = await this.orderRepository.findByID(req, pkid);
+    if (!order) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    if (order.getDataValue('status') !== OrderHeaderStatus.Process) {
+      throw new Error(getMessage(req, MessagesKey.INVALIDORDERSTATUS));
+    }
+
+    await this.orderStatusRepository.create(req, {
+      order_pkid: order.getDataValue('pkid'),
+      status: status,
+    } as CreationAttributes<Model<OrderStatusAttributes>>);
+
+    return order.toJSON() as OrderResultDTO;
+  }
+
 }
