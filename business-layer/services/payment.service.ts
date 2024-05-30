@@ -5,13 +5,17 @@ import { PaymentAttributes } from '../../infrastructure/models/payment.model';
 import { CreationAttributes, Model } from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
+import coreApi from '../../infrastructure/config/midtrans';
+import { OrderRepository } from '../../data-access/repositories/order.repository';
 
 export class PaymentService extends BaseService<Model<PaymentAttributes>> {
   private paymentRepository: PaymentRepository;
+  private orderRepository: OrderRepository;
 
   constructor() {
     super(new PaymentRepository());
     this.paymentRepository = new PaymentRepository();
+    this.orderRepository = new OrderRepository();
   }
 
   public async createPayment(req: Request, paymentData: CreationAttributes<Model<PaymentAttributes>>): Promise<Model<PaymentAttributes>> {
@@ -34,5 +38,34 @@ export class PaymentService extends BaseService<Model<PaymentAttributes>> {
     return [1, [payment]];
   }
 
-  // Other methods...
+  public async initiateTransaction(req: Request, orderPkid: number): Promise<any> {
+    const user = (req as any).user;
+    const order = await this.orderRepository.findByID(req, orderPkid);
+
+    if (!order) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    const parameter = {
+      payment_type: 'bank_transfer',
+      transaction_details: {
+        order_id: order.getDataValue('pkid').toString(),
+        gross_amount: order.getDataValue('total_price'),
+      },
+      customer_details: {
+        email: user.email,
+        name: user.name,
+      },
+    };
+
+    try {
+      return await coreApi.charge(parameter);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + error.message);
+      } else {
+        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + String(error));
+      }
+    }
+  }
 }

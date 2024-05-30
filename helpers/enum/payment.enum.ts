@@ -8,7 +8,11 @@ export enum PaymentStatus {
 export enum PaymentMethod {
   Cash = 'Cash',
   Transfer = 'Transfer',
-  Midtrans = 'Midtrans',
   QRIS = 'QRIS',
+  GoPay = 'GoPay',
+  OVO = 'OVO',
+  Dana = 'Dana',
+  LinkAja = 'LinkAja',
+  ShopeePay = 'ShopeePay',
   // Add other payment methods as needed
 }

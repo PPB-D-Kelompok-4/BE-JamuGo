@@ -59,5 +59,16 @@ export class PaymentController extends BaseController {
     }
   }
 
-  // Other methods...
+  public async initiateTransaction(req: Request, res: Response): Promise<Response> {
+    try {
+      const orderPkid = parseInt(req.body.order_pkid);
+      if (isNaN(orderPkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const transaction = await this.paymentService.initiateTransaction(req, orderPkid);
+      return this.sendSuccessGet(req, res, transaction, MessagesKey.SUCCESSCREATE);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
 }
