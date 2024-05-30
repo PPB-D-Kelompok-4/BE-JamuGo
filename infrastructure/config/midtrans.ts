@@ -13,4 +13,10 @@ const coreApi = new MidtransClient.CoreApi({
   clientKey: MIDTRANS_CLIENT_KEY,
 });
 
-export default coreApi;
+const snap = new MidtransClient.Snap({
+  isProduction: false,
+  serverKey: MIDTRANS_SERVER_KEY,
+  clientKey: MIDTRANS_CLIENT_KEY,
+});
+
+export { coreApi, snap };

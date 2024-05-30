@@ -9,5 +9,6 @@ router.post('/', authenticate, (req, res) => paymentController.createPayment(req
 router.get('/:pkid', authenticate, (req, res) => paymentController.getPaymentById(req, res));
 router.put('/:pkid', authenticate, (req, res) => paymentController.updatePaymentStatus(req, res));
 router.post('/initiate', authenticate, (req, res) => paymentController.initiateTransaction(req, res));
+router.post('/snap/initiate', authenticate, (req, res) => paymentController.initiateSnapTransaction(req, res));
 
 export default router;

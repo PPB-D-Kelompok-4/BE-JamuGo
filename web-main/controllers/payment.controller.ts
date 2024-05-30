@@ -71,4 +71,17 @@ export class PaymentController extends BaseController {
       return this.handleError(req, res, error, 500);
     }
   }
+
+  public async initiateSnapTransaction(req: Request, res: Response): Promise<Response> {
+    try {
+      const orderPkid = parseInt(req.body.order_pkid);
+      if (isNaN(orderPkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const transaction = await this.paymentService.initiateSnapTransaction(req, orderPkid);
+      return this.sendSuccessGet(req, res, transaction, MessagesKey.SUCCESSCREATE);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
 }
