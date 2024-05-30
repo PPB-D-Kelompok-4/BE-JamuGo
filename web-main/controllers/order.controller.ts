@@ -3,7 +3,10 @@ import { OrderService } from '../../business-layer/services/order.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { OrderInputDTO } from '../../helpers/dtos/order.dto';
-import { OrderInputVM, OrderResultVM } from '../../helpers/view-models/order.vm';
+import {
+  OrderInputVM,
+  OrderResultVM,
+} from '../../helpers/view-models/order.vm';
 import { OrderStatus } from '../../helpers/enum/orderStatus.enum';
 
 export class OrderController extends BaseController {
@@ -17,7 +20,10 @@ export class OrderController extends BaseController {
   public async createOrder(req: Request, res: Response): Promise<Response> {
     try {
       const orderInput = new OrderInputVM(req.body as OrderInputDTO);
-      const order = await this.orderService.createOrder(req, orderInput.orderData);
+      const order = await this.orderService.createOrder(
+        req,
+        orderInput.orderData,
+      );
       const orderResultVM = new OrderResultVM(order);
       return this.sendSuccessCreate(req, res, orderResultVM.result, order.pkid);
     } catch (error) {
@@ -33,7 +39,12 @@ export class OrderController extends BaseController {
       }
       const order = await this.orderService.getOrderById(req, pkid);
       const orderResultVM = new OrderResultVM(order);
-      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSGETBYID);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.SUCCESSGETBYID,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -43,7 +54,12 @@ export class OrderController extends BaseController {
     try {
       const orders = await this.orderService.getOrdersByUser(req);
       const orderResultVMs = orders.map((order) => new OrderResultVM(order));
-      return this.sendSuccessGet(req, res, orderResultVMs.map((vm) => vm.result), MessagesKey.SUCCESSGET);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVMs.map((vm) => vm.result),
+        MessagesKey.SUCCESSGET,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -57,26 +73,42 @@ export class OrderController extends BaseController {
       }
       const order = await this.orderService.cancelOrder(req, pkid);
       const orderResultVM = new OrderResultVM(order);
-      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.ORDERCANCELLED);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.ORDERCANCELLED,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async getLastOrderByUser(req: Request, res: Response): Promise<Response> {
+  public async getLastOrderByUser(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const order = await this.orderService.getLastOrderByUser(req);
       if (!order) {
         return this.sendSuccessGet(req, res, null, MessagesKey.NODATAFOUND);
       }
       const orderResultVM = new OrderResultVM(order);
-      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSGET);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.SUCCESSGET,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async updateOrderStatus(req: Request, res: Response): Promise<Response> {
+  public async updateOrderStatus(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const pkid = parseInt(req.params.pkid);
       if (isNaN(pkid)) {
@@ -88,9 +120,18 @@ export class OrderController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
 
-      const order = await this.orderService.updateOrderStatus(req, pkid, status as OrderStatus);
+      const order = await this.orderService.updateOrderStatus(
+        req,
+        pkid,
+        status as OrderStatus,
+      );
       const orderResultVM = new OrderResultVM(order);
-      return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSUPDATE);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.SUCCESSUPDATE,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

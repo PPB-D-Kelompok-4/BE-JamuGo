@@ -1,4 +1,4 @@
-import { MidtransClient } from 'midtrans-node-client'
+import { MidtransClient } from 'midtrans-node-client';
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY;

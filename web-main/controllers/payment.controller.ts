@@ -16,7 +16,12 @@ export class PaymentController extends BaseController {
     try {
       const payment = await this.paymentService.createPayment(req, req.body);
       const paymentResultVM = new PaymentResultVM(payment.toJSON());
-      return this.sendSuccessCreate(req, res, paymentResultVM.result, payment.getDataValue('pkid'));
+      return this.sendSuccessCreate(
+        req,
+        res,
+        paymentResultVM.result,
+        payment.getDataValue('pkid'),
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
@@ -33,13 +38,21 @@ export class PaymentController extends BaseController {
         return this.sendErrorNotFound(req, res);
       }
       const paymentResultVM = new PaymentResultVM(payment.toJSON());
-      return this.sendSuccessGet(req, res, paymentResultVM.result, MessagesKey.SUCCESSGETBYID);
+      return this.sendSuccessGet(
+        req,
+        res,
+        paymentResultVM.result,
+        MessagesKey.SUCCESSGETBYID,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async updatePaymentStatus(req: Request, res: Response): Promise<Response> {
+  public async updatePaymentStatus(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const pkid = parseInt(req.params.pkid);
       if (isNaN(pkid)) {
@@ -47,39 +60,67 @@ export class PaymentController extends BaseController {
       }
 
       const { status } = req.body;
-      const [affectedCount, affectedRows] = await this.paymentService.updatePaymentStatus(req, pkid, status);
+      const [affectedCount, affectedRows] =
+        await this.paymentService.updatePaymentStatus(req, pkid, status);
       if (affectedCount === 0) {
         return this.sendErrorNotFound(req, res);
       }
 
       const paymentResultVM = new PaymentResultVM(affectedRows[0].toJSON());
-      return this.sendSuccessUpdate(req, res, paymentResultVM.result, MessagesKey.SUCCESSUPDATE);
+      return this.sendSuccessUpdate(
+        req,
+        res,
+        paymentResultVM.result,
+        MessagesKey.SUCCESSUPDATE,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async initiateTransaction(req: Request, res: Response): Promise<Response> {
+  public async initiateTransaction(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const orderPkid = parseInt(req.body.order_pkid);
       if (isNaN(orderPkid)) {
         return this.sendErrorBadRequest(req, res);
       }
-      const transaction = await this.paymentService.initiateTransaction(req, orderPkid);
-      return this.sendSuccessGet(req, res, transaction, MessagesKey.SUCCESSCREATE);
+      const transaction = await this.paymentService.initiateTransaction(
+        req,
+        orderPkid,
+      );
+      return this.sendSuccessGet(
+        req,
+        res,
+        transaction,
+        MessagesKey.SUCCESSCREATE,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }
   }
 
-  public async initiateSnapTransaction(req: Request, res: Response): Promise<Response> {
+  public async initiateSnapTransaction(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const orderPkid = parseInt(req.body.order_pkid);
       if (isNaN(orderPkid)) {
         return this.sendErrorBadRequest(req, res);
       }
-      const transaction = await this.paymentService.initiateSnapTransaction(req, orderPkid);
-      return this.sendSuccessGet(req, res, transaction, MessagesKey.SUCCESSCREATE);
+      const transaction = await this.paymentService.initiateSnapTransaction(
+        req,
+        orderPkid,
+      );
+      return this.sendSuccessGet(
+        req,
+        res,
+        transaction,
+        MessagesKey.SUCCESSCREATE,
+      );
     } catch (error) {
       return this.handleError(req, res, error, 500);
     }

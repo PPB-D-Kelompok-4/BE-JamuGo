@@ -18,15 +18,28 @@ export class PaymentService extends BaseService<Model<PaymentAttributes>> {
     this.orderRepository = new OrderRepository();
   }
 
-  public async createPayment(req: Request, paymentData: CreationAttributes<Model<PaymentAttributes>>): Promise<Model<PaymentAttributes>> {
-    return await this.paymentRepository.create(req, paymentData) as Model<PaymentAttributes>;
+  public async createPayment(
+    req: Request,
+    paymentData: CreationAttributes<Model<PaymentAttributes>>,
+  ): Promise<Model<PaymentAttributes>> {
+    return (await this.paymentRepository.create(
+      req,
+      paymentData,
+    )) as Model<PaymentAttributes>;
   }
 
-  public async getPaymentById(req: Request, pkid: number): Promise<Model<PaymentAttributes> | null> {
+  public async getPaymentById(
+    req: Request,
+    pkid: number,
+  ): Promise<Model<PaymentAttributes> | null> {
     return await this.paymentRepository.findByID(req, pkid);
   }
 
-  public async updatePaymentStatus(req: Request, pkid: number, status: string): Promise<[number, Model<PaymentAttributes>[]]> {
+  public async updatePaymentStatus(
+    req: Request,
+    pkid: number,
+    status: string,
+  ): Promise<[number, Model<PaymentAttributes>[]]> {
     const payment = await this.paymentRepository.findByID(req, pkid);
     if (!payment) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
@@ -38,7 +51,10 @@ export class PaymentService extends BaseService<Model<PaymentAttributes>> {
     return [1, [payment]];
   }
 
-  public async initiateTransaction(req: Request, orderPkid: number): Promise<any> {
+  public async initiateTransaction(
+    req: Request,
+    orderPkid: number,
+  ): Promise<any> {
     const user = (req as any).user;
     const order = await this.orderRepository.findByID(req, orderPkid);
 
@@ -62,14 +78,25 @@ export class PaymentService extends BaseService<Model<PaymentAttributes>> {
       return await coreApi.charge(parameter);
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + error.message);
+        throw new Error(
+          getMessage(req, MessagesKey.INTERNALSERVERERROR) +
+            ': ' +
+            error.message,
+        );
       } else {
-        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + String(error));
+        throw new Error(
+          getMessage(req, MessagesKey.INTERNALSERVERERROR) +
+            ': ' +
+            String(error),
+        );
       }
     }
   }
 
-  public async initiateSnapTransaction(req: Request, orderPkid: number): Promise<any> {
+  public async initiateSnapTransaction(
+    req: Request,
+    orderPkid: number,
+  ): Promise<any> {
     const user = (req as any).user;
     const order = await this.orderRepository.findByID(req, orderPkid);
 
@@ -87,20 +114,28 @@ export class PaymentService extends BaseService<Model<PaymentAttributes>> {
         name: user.name,
       },
       credit_card: {
-        secure: true
+        secure: true,
       },
       callbacks: {
-        finish: "https://your-frontend-app-url.com/finish"
-      }
+        finish: 'https://your-frontend-app-url.com/finish',
+      },
     };
 
     try {
       return await snap.createTransaction(parameter);
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + error.message);
+        throw new Error(
+          getMessage(req, MessagesKey.INTERNALSERVERERROR) +
+            ': ' +
+            error.message,
+        );
       } else {
-        throw new Error(getMessage(req, MessagesKey.INTERNALSERVERERROR) + ': ' + String(error));
+        throw new Error(
+          getMessage(req, MessagesKey.INTERNALSERVERERROR) +
+            ': ' +
+            String(error),
+        );
       }
     }
   }

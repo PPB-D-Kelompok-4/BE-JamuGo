@@ -7,8 +7,17 @@ import { CartItemRepository } from '../../data-access/repositories/cartItem.repo
 import { OrderStatusRepository } from '../../data-access/repositories/orderStatus.repository';
 import { OrderAttributes } from '../../infrastructure/models/order.model';
 import { BaseService } from '../common/base.service';
-import { OrderInputDTO, OrderItemInputDTO, OrderItemResultDTO, OrderResultDTO, OrderStatusResultDTO } from '../../helpers/dtos/order.dto';
-import { OrderInputVM, OrderItemInputVM } from '../../helpers/view-models/order.vm';
+import {
+  OrderInputDTO,
+  OrderItemInputDTO,
+  OrderItemResultDTO,
+  OrderResultDTO,
+  OrderStatusResultDTO,
+} from '../../helpers/dtos/order.dto';
+import {
+  OrderInputVM,
+  OrderItemInputVM,
+} from '../../helpers/view-models/order.vm';
 import { CreationAttributes, Model } from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
@@ -45,7 +54,10 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     this.transactionRepository = new TransactionRepository();
   }
 
-  public async createOrder(req: Request, orderData: OrderInputDTO): Promise<OrderResultDTO> {
+  public async createOrder(
+    req: Request,
+    orderData: OrderInputDTO,
+  ): Promise<OrderResultDTO> {
     const user = (req as any).user;
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
@@ -80,7 +92,10 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     };
 
     const orderVM = new OrderInputVM(orderData);
-    const order = await this.orderRepository.create(req, orderVM.orderData as OrderAttributes) as Model<OrderAttributes>;
+    const order = (await this.orderRepository.create(
+      req,
+      orderVM.orderData as OrderAttributes,
+    )) as Model<OrderAttributes>;
     const orderItems = await Promise.all(
       cartItems.map(async (item) => {
         const orderItemData: OrderItemInputDTO = {
@@ -90,10 +105,10 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
           price: item.getDataValue('price'),
         };
         const orderItemVM = new OrderItemInputVM(orderItemData);
-        const result = await this.orderItemRepository.create(
+        const result = (await this.orderItemRepository.create(
           req,
           orderItemVM.orderItemData as OrderItemAttributes,
-        ) as Model<OrderItemAttributes>;
+        )) as Model<OrderItemAttributes>;
         return result.toJSON() as OrderItemResultDTO;
       }),
     );
@@ -116,7 +131,9 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
       cart_pkid: cart[0].getDataValue('pkid'),
     });
 
-    await this.cartRepository.update(req, cart[0].getDataValue('pkid'), { total_price: 0 });
+    await this.cartRepository.update(req, cart[0].getDataValue('pkid'), {
+      total_price: 0,
+    });
 
     const orderResult = order.toJSON() as OrderResultWithItemsDTO;
     orderResult.items = orderItems;
@@ -124,7 +141,10 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     return orderResult;
   }
 
-  public async getOrderById(req: Request, pkid: number): Promise<OrderResultWithItemsDTO> {
+  public async getOrderById(
+    req: Request,
+    pkid: number,
+  ): Promise<OrderResultWithItemsDTO> {
     const order = await this.orderRepository.findByID(req, pkid);
     if (!order) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
@@ -139,13 +159,19 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     });
 
     const orderResult = order.toJSON() as OrderResultWithItemsDTO;
-    orderResult.items = orderItems.map((item) => item.toJSON() as OrderItemResultDTO);
-    orderResult.orderStatus = orderStatus.length ? orderStatus[0].toJSON() as OrderStatusResultDTO : undefined;
+    orderResult.items = orderItems.map(
+      (item) => item.toJSON() as OrderItemResultDTO,
+    );
+    orderResult.orderStatus = orderStatus.length
+      ? (orderStatus[0].toJSON() as OrderStatusResultDTO)
+      : undefined;
 
     return orderResult;
   }
 
-  public async getOrdersByUser(req: Request): Promise<OrderResultWithItemsDTO[]> {
+  public async getOrdersByUser(
+    req: Request,
+  ): Promise<OrderResultWithItemsDTO[]> {
     const user = (req as any).user;
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
@@ -169,14 +195,21 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
           order_pkid: order.getDataValue('pkid'),
         });
         const orderResult = order.toJSON() as OrderResultWithItemsDTO;
-        orderResult.items = orderItems.map((item) => item.toJSON() as OrderItemResultDTO);
-        orderResult.orderStatus = orderStatus.length ? orderStatus[0].toJSON() as OrderStatusResultDTO : undefined;
+        orderResult.items = orderItems.map(
+          (item) => item.toJSON() as OrderItemResultDTO,
+        );
+        orderResult.orderStatus = orderStatus.length
+          ? (orderStatus[0].toJSON() as OrderStatusResultDTO)
+          : undefined;
         return orderResult;
       }),
     );
   }
 
-  public async cancelOrder(req: Request, pkid: number): Promise<OrderResultDTO> {
+  public async cancelOrder(
+    req: Request,
+    pkid: number,
+  ): Promise<OrderResultDTO> {
     const user = (req as any).user;
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
@@ -189,7 +222,10 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
 
     const order = await this.orderRepository.findByID(req, pkid);
 
-    if (!order || order.getDataValue('user_pkid') !== dbUser.getDataValue('pkid')) {
+    if (
+      !order ||
+      order.getDataValue('user_pkid') !== dbUser.getDataValue('pkid')
+    ) {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
     }
 
@@ -208,7 +244,9 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     return order.toJSON() as OrderResultDTO;
   }
 
-  public async getLastOrderByUser(req: Request): Promise<OrderResultWithItemsDTO | null> {
+  public async getLastOrderByUser(
+    req: Request,
+  ): Promise<OrderResultWithItemsDTO | null> {
     const user = (req as any).user;
     if (!user) {
       throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
@@ -237,13 +275,21 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     });
 
     const orderResult = lastOrder.toJSON() as OrderResultWithItemsDTO;
-    orderResult.items = orderItems.map((item) => item.toJSON() as OrderItemResultDTO);
-    orderResult.orderStatus = orderStatus.length ? orderStatus[0].toJSON() as OrderStatusResultDTO : undefined;
+    orderResult.items = orderItems.map(
+      (item) => item.toJSON() as OrderItemResultDTO,
+    );
+    orderResult.orderStatus = orderStatus.length
+      ? (orderStatus[0].toJSON() as OrderStatusResultDTO)
+      : undefined;
 
     return orderResult;
   }
 
-  public async updateOrderStatus(req: Request, pkid: number, status: OrderStatus): Promise<OrderResultDTO> {
+  public async updateOrderStatus(
+    req: Request,
+    pkid: number,
+    status: OrderStatus,
+  ): Promise<OrderResultDTO> {
     await checkAdminRole(req);
 
     const order = await this.orderRepository.findByID(req, pkid);
@@ -265,5 +311,4 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
 
     return order.toJSON() as OrderResultDTO;
   }
-
 }
