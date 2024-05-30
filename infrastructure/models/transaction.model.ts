@@ -1,7 +1,7 @@
 import { BaseEntity } from '../interfaces/baseEntity.model';
 
 export interface TransactionAttributes {
-  pkid: number;
+  pkid?: number;
   order_pkid: number;
   payment_status: string;
   payment_method: string;

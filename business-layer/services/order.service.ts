@@ -16,6 +16,9 @@ import { OrderItemAttributes } from '../../infrastructure/models/orderItem.model
 import { OrderHeaderStatus } from '../../helpers/enum/orderHeaderStatus.enum';
 import { OrderStatus } from '../../helpers/enum/orderStatus.enum';
 import { OrderStatusAttributes } from '../../infrastructure/models/orderStatus.model';
+import { TransactionRepository } from '../../data-access/repositories/transaction.repository';
+import { TransactionAttributes } from '../../infrastructure/models/transaction.model';
+import { PaymentMethod, PaymentStatus } from '../../helpers/enum/payment.enum';
 import { checkAdminRole } from '../../helpers/utility/checkAdminRole';
 
 interface OrderResultWithItemsDTO extends OrderResultDTO {
@@ -29,6 +32,7 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
   private cartRepository: CartRepository;
   private cartItemRepository: CartItemRepository;
   private orderStatusRepository: OrderStatusRepository;
+  private transactionRepository: TransactionRepository;
 
   constructor() {
     super(new OrderRepository());
@@ -38,6 +42,7 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     this.cartRepository = new CartRepository();
     this.cartItemRepository = new CartItemRepository();
     this.orderStatusRepository = new OrderStatusRepository();
+    this.transactionRepository = new TransactionRepository();
   }
 
   public async createOrder(req: Request, orderData: OrderInputDTO): Promise<OrderResultDTO> {
@@ -97,6 +102,15 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
       order_pkid: order.getDataValue('pkid'),
       status: OrderStatus.OrderPlaced,
     } as CreationAttributes<Model<OrderStatusAttributes>>);
+
+    // Create the transaction
+    const transactionData: CreationAttributes<Model<TransactionAttributes>> = {
+      order_pkid: order.getDataValue('pkid'),
+      payment_status: PaymentStatus.Pending,
+      payment_method: PaymentMethod.Cash,
+      transaction_date: new Date(),
+    };
+    await this.transactionRepository.create(req, transactionData);
 
     await this.cartItemRepository.bulkHardDelete(req, {
       cart_pkid: cart[0].getDataValue('pkid'),
@@ -237,9 +251,12 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
       throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
     }
 
-    if (order.getDataValue('status') !== OrderHeaderStatus.Process) {
+    if (!Object.values(OrderStatus).includes(status)) {
       throw new Error(getMessage(req, MessagesKey.INVALIDORDERSTATUS));
     }
+
+    order.setDataValue('status', status);
+    await order.save();
 
     await this.orderStatusRepository.create(req, {
       order_pkid: order.getDataValue('pkid'),

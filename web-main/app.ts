@@ -8,6 +8,8 @@ import menuRouter from './routers/menu.router';
 import path from 'path';
 import cartRouter from './routers/cart.router';
 import orderRouter from './routers/order.router';
+import transactionRouter from './routers/transaction.router';
+import paymentRouter from './routers/payment.router';
 
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.use('/api/user', userRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
+app.use('/api/transaction', transactionRouter);
+app.use('/api/payment', paymentRouter);
 
 // Set the port
 const PORT = process.env.PORT;

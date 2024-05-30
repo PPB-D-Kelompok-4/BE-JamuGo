@@ -88,7 +88,7 @@ export class OrderController extends BaseController {
         return this.sendErrorBadRequest(req, res);
       }
 
-      const order = await this.orderService.updateOrderStatus(req, pkid, status);
+      const order = await this.orderService.updateOrderStatus(req, pkid, status as OrderStatus);
       const orderResultVM = new OrderResultVM(order);
       return this.sendSuccessGet(req, res, orderResultVM.result, MessagesKey.SUCCESSUPDATE);
     } catch (error) {
