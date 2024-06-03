@@ -50,4 +50,5 @@ export const messages_en = {
   [MessagesKey.ORDERALREADYCANCELLED]: 'Order has already been cancelled.',
   [MessagesKey.ORDERCANCELLED]: 'Order has been successfully cancelled.',
   [MessagesKey.INVALIDORDERSTATUS]: 'Invalid order status.',
+  [MessagesKey.ROLENOTFOUND]: 'Role not found.',
 };

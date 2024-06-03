@@ -265,5 +265,16 @@ export class UserService extends BaseService<Model<UserAttributes>> {
 
     return userJson as UserResultDTO;
   }
+
+  public async getUserRole(
+    req: Request,
+    rolePkid: number,
+  ): Promise<{ name: string }> {
+    const role = await this.roleRepository.findByID(req, rolePkid);
+    if (!role) {
+      throw new Error(getMessage(req, MessagesKey.ROLENOTFOUND));
+    }
+    return role.toJSON();
+  }
   //endregion
 }

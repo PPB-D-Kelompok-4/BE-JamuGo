@@ -3,11 +3,7 @@ import { UserService } from '../../business-layer/services/user.service';
 import { BaseController } from '../common/base.controller';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { UserUpdateDTO } from '../../helpers/dtos/user.dto';
-import {
-  UserInputVM,
-  UserResultVM,
-  UserUpdateVM,
-} from '../../helpers/view-models/user.vm';
+import { UserInputVM, UserResultVM, UserUpdateVM } from '../../helpers/view-models/user.vm';
 import path from 'node:path';
 import * as fs from 'fs';
 
@@ -161,6 +157,25 @@ export class UserController extends BaseController {
       }
     } catch (error) {
       this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async checkToken(req: Request, res: Response): Promise<Response> {
+    try {
+      const user = (req as any).user;
+      if (!user) {
+        return this.sendErrorUnauthorized(req, res);
+      }
+      const userData = await this.userService.findByUUIDUser(req, user.uid);
+      const role = await this.userService.getUserRole(req, userData.role_pkid);
+      return this.sendSuccessGet(
+        req,
+        res,
+        { ...userData, role: role.name },
+        MessagesKey.SUCCESSGET,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
     }
   }
 }

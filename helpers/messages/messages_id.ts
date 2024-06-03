@@ -52,4 +52,5 @@ export const messages_id = {
   [MessagesKey.ORDERALREADYCANCELLED]: 'Pesanan sudah dibatalkan.',
   [MessagesKey.ORDERCANCELLED]: 'Pesanan berhasil dibatalkan.',
   [MessagesKey.INVALIDORDERSTATUS]: 'Status pesanan tidak valid.',
+  [MessagesKey.ROLENOTFOUND]: 'Peran tidak ditemukan.',
 };

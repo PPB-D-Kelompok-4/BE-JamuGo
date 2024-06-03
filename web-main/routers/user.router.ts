@@ -25,5 +25,6 @@ router.post('/upload-profile-image', upload.single('image'), (req, res) =>
 router.get('/profile-image/:filename', (req, res) =>
   userController.getProfileImage(req, res),
 );
+router.get('/check-token', (req, res) => userController.checkToken(req, res));
 
 export default router;
