@@ -17,6 +17,8 @@ export class OrderController extends BaseController {
     this.orderService = new OrderService();
   }
 
+  //region Create Methods
+
   public async createOrder(req: Request, res: Response): Promise<Response> {
     try {
       const orderInput = new OrderInputVM(req.body as OrderInputDTO);
@@ -30,6 +32,10 @@ export class OrderController extends BaseController {
       return this.handleError(req, res, error, 500);
     }
   }
+
+  //endregion
+
+  //region Read Methods
 
   public async getOrderById(req: Request, res: Response): Promise<Response> {
     try {
@@ -65,19 +71,20 @@ export class OrderController extends BaseController {
     }
   }
 
-  public async cancelOrder(req: Request, res: Response): Promise<Response> {
+  public async getAllOrders(req: Request, res: Response): Promise<Response> {
     try {
-      const pkid = parseInt(req.params.pkid);
-      if (isNaN(pkid)) {
-        return this.sendErrorBadRequest(req, res);
-      }
-      const order = await this.orderService.cancelOrder(req, pkid);
-      const orderResultVM = new OrderResultVM(order);
+      const { status, sortByDate } = req.query;
+      const orders = await this.orderService.getAllOrders(
+        req,
+        status as string,
+        sortByDate === 'true',
+      );
+      const orderResultVMs = orders.map((order) => new OrderResultVM(order));
       return this.sendSuccessGet(
         req,
         res,
-        orderResultVM.result,
-        MessagesKey.ORDERCANCELLED,
+        orderResultVMs.map((vm) => vm.result),
+        MessagesKey.SUCCESSGET,
       );
     } catch (error) {
       return this.handleError(req, res, error, 500);
@@ -104,6 +111,10 @@ export class OrderController extends BaseController {
       return this.handleError(req, res, error, 500);
     }
   }
+
+  //endregion
+
+  //region Update Methods
 
   public async updateOrderStatus(
     req: Request,
@@ -136,4 +147,63 @@ export class OrderController extends BaseController {
       return this.handleError(req, res, error, 500);
     }
   }
+
+  public async cancelOrder(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.params.pkid);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const order = await this.orderService.cancelOrder(req, pkid);
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.ORDERCANCELLED,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async finishOrder(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.params.pkid);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const order = await this.orderService.finishOrder(req, pkid);
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.SUCCESSUPDATE,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  public async processOrder(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.params.pkid);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const order = await this.orderService.processOrder(req, pkid);
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.SUCCESSUPDATE,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+  //endregion
 }

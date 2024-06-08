@@ -54,9 +54,9 @@ export abstract class BaseRepository<T extends Model> {
   //endregion
 
   //region Find methods
-  async findAll(req: Request): Promise<T[]> {
+  async findAll(req: Request, options?: FindOptions): Promise<T[]> {
     try {
-      return await this.model.findAll();
+      return await this.model.findAll(options);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(

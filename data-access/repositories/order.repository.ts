@@ -17,8 +17,11 @@ export class OrderRepository extends BaseRepository<Model<OrderAttributes>> {
   }
 
   //region Find methods
-  async findAll(req: Request): Promise<Model<OrderAttributes>[]> {
-    return await super.findAll(req);
+  async findAll(
+    req: Request,
+    options?: FindOptions,
+  ): Promise<Model<OrderAttributes>[]> {
+    return await super.findAll(req, options);
   }
 
   async findByID(

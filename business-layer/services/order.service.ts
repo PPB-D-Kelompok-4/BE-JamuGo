@@ -18,7 +18,12 @@ import {
   OrderInputVM,
   OrderItemInputVM,
 } from '../../helpers/view-models/order.vm';
-import { CreationAttributes, Model } from 'sequelize';
+import {
+  CreationAttributes,
+  FindOptions,
+  Model,
+  WhereOptions,
+} from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { OrderItemAttributes } from '../../infrastructure/models/orderItem.model';
@@ -54,6 +59,7 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     this.transactionRepository = new TransactionRepository();
   }
 
+  //region Create Method
   public async createOrder(
     req: Request,
     orderData: OrderInputDTO,
@@ -140,7 +146,9 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
 
     return orderResult;
   }
+  //endregion
 
+  //region Read Method
   public async getOrderById(
     req: Request,
     pkid: number,
@@ -206,44 +214,6 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     );
   }
 
-  public async cancelOrder(
-    req: Request,
-    pkid: number,
-  ): Promise<OrderResultDTO> {
-    const user = (req as any).user;
-    if (!user) {
-      throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
-    }
-
-    const dbUser = await this.userRepository.findByUUID(user.uid);
-    if (!dbUser) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-
-    const order = await this.orderRepository.findByID(req, pkid);
-
-    if (
-      !order ||
-      order.getDataValue('user_pkid') !== dbUser.getDataValue('pkid')
-    ) {
-      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
-    }
-
-    if (order.getDataValue('status') === OrderHeaderStatus.Cancelled) {
-      throw new Error(getMessage(req, MessagesKey.ORDERALREADYCANCELLED));
-    }
-
-    order.setDataValue('status', OrderHeaderStatus.Cancelled);
-    await order.save();
-
-    await this.orderStatusRepository.create(req, {
-      order_pkid: order.getDataValue('pkid'),
-      status: OrderStatus.Cancelled,
-    } as CreationAttributes<Model<OrderStatusAttributes>>);
-
-    return order.toJSON() as OrderResultDTO;
-  }
-
   public async getLastOrderByUser(
     req: Request,
   ): Promise<OrderResultWithItemsDTO | null> {
@@ -285,6 +255,85 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     return orderResult;
   }
 
+  public async getAllOrders(
+    req: Request,
+    status?: string,
+    sortByDate?: boolean,
+  ): Promise<OrderResultWithItemsDTO[]> {
+    await checkAdminRole(req);
+
+    const criteria: WhereOptions<OrderAttributes> = {};
+    if (status) {
+      criteria.status = status;
+    }
+
+    const options: FindOptions<OrderAttributes> = {
+      where: criteria,
+      order: sortByDate ? [['created_date', 'DESC']] : undefined,
+    };
+
+    const orders = await this.orderRepository.findAll(req, options);
+
+    return await Promise.all(
+      orders.map(async (order) => {
+        const orderItems = await this.orderItemRepository.where(req, {
+          order_pkid: order.getDataValue('pkid'),
+        });
+        const orderStatus = await this.orderStatusRepository.where(req, {
+          order_pkid: order.getDataValue('pkid'),
+        });
+        const orderResult = order.toJSON() as OrderResultWithItemsDTO;
+        orderResult.items = orderItems.map(
+          (item) => item.toJSON() as OrderItemResultDTO,
+        );
+        orderResult.orderStatus = orderStatus.length
+          ? (orderStatus[0].toJSON() as OrderStatusResultDTO)
+          : undefined;
+        return orderResult;
+      }),
+    );
+  }
+  //endregion
+
+  //region Update Methods
+  public async cancelOrder(
+    req: Request,
+    pkid: number,
+  ): Promise<OrderResultDTO> {
+    const user = (req as any).user;
+    if (!user) {
+      throw new Error(getMessage(req, MessagesKey.UNAUTHORIZED));
+    }
+
+    const dbUser = await this.userRepository.findByUUID(user.uid);
+    if (!dbUser) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    const order = await this.orderRepository.findByID(req, pkid);
+
+    if (
+      !order ||
+      order.getDataValue('user_pkid') !== dbUser.getDataValue('pkid')
+    ) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    if (order.getDataValue('status') === OrderHeaderStatus.Cancelled) {
+      throw new Error(getMessage(req, MessagesKey.ORDERALREADYCANCELLED));
+    }
+
+    order.setDataValue('status', OrderHeaderStatus.Cancelled);
+    await order.save();
+
+    await this.orderStatusRepository.create(req, {
+      order_pkid: order.getDataValue('pkid'),
+      status: OrderStatus.Cancelled,
+    } as CreationAttributes<Model<OrderStatusAttributes>>);
+
+    return order.toJSON() as OrderResultDTO;
+  }
+
   public async updateOrderStatus(
     req: Request,
     pkid: number,
@@ -311,4 +360,31 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
 
     return order.toJSON() as OrderResultDTO;
   }
+
+  public async updateOrderHeaderStatus(
+    req: Request,
+    pkid: number,
+    status: OrderHeaderStatus,
+  ): Promise<OrderResultDTO> {
+    await checkAdminRole(req);
+
+    const order = await this.orderRepository.findByID(req, pkid);
+    if (!order) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    order.setDataValue('status', status);
+    await order.save();
+
+    return order.toJSON() as OrderResultDTO;
+  }
+
+  public async finishOrder(req: Request, pkid: number): Promise<OrderResultDTO> {
+    return this.updateOrderHeaderStatus(req, pkid, OrderHeaderStatus.Completed);
+  }
+
+  public async processOrder(req: Request, pkid: number): Promise<OrderResultDTO> {
+    return this.updateOrderHeaderStatus(req, pkid, OrderHeaderStatus.Process);
+  }
+  //endregion
 }

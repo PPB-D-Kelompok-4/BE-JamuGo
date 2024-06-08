@@ -18,7 +18,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = process.env.BASE_URL ;
+const BASE_URL = process.env.BASE_URL;
 
 export class MenuService extends BaseService<Model<MenuAttributes>> {
   private menuRepository: MenuRepository;
