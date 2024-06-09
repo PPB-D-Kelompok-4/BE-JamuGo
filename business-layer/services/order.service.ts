@@ -386,5 +386,14 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
   public async processOrder(req: Request, pkid: number): Promise<OrderResultDTO> {
     return this.updateOrderHeaderStatus(req, pkid, OrderHeaderStatus.Process);
   }
+
+  public async getTransactionByOrderId(
+    req: Request,
+    orderPkid: number,
+  ): Promise<Model<TransactionAttributes>[]> {
+    return await this.transactionRepository.where(req, {
+      order_pkid: orderPkid,
+    });
+  }
   //endregion
 }

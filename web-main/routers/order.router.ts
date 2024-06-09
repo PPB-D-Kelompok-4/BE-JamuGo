@@ -19,12 +19,24 @@ router.get('/last', authenticate, (req, res) =>
   orderController.getLastOrderByUser(req, res),
 );
 
+router.get('/transaction/:orderPkid', authenticate, (req, res) =>
+  orderController.getTransactionByOrderId(req, res),
+);
+
 router.put('/status/:pkid', authenticate, (req, res) =>
   orderController.updateOrderStatus(req, res),
 );
 
 router.put('/cancel/:pkid', authenticate, (req, res) =>
   orderController.cancelOrder(req, res),
+);
+
+router.put('/finish/:pkid', authenticate, (req, res) =>
+  orderController.finishOrder(req, res),
+);
+
+router.put('/process/:pkid', authenticate, (req, res) =>
+  orderController.processOrder(req, res),
 );
 
 router.get('/:pkid', authenticate, (req, res) =>
@@ -37,14 +49,6 @@ router.get('/:pkid', authenticate, (req, res) =>
 
 router.get('/admin/all', authenticate, (req, res) =>
   orderController.getAllOrders(req, res),
-);
-
-router.put('/admin/finish/:pkid', authenticate, (req, res) =>
-  orderController.finishOrder(req, res),
-);
-
-router.put('/admin/process/:pkid', authenticate, (req, res) =>
-  orderController.processOrder(req, res),
 );
 
 //endregion

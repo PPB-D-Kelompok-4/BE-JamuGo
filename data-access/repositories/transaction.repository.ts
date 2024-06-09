@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { TransactionAttributes } from '../../infrastructure/models/transaction.model';
-import { Model, WhereOptions, CreationAttributes } from 'sequelize';
+import { Model, WhereOptions, CreationAttributes, FindOptions } from 'sequelize';
 import db from '../../infrastructure/models';
 import { BaseRepository } from '../utility/base.repository';
 
@@ -12,8 +12,11 @@ export class TransactionRepository extends BaseRepository<
   }
 
   //region Find methods
-  async findAll(req: Request): Promise<Model<TransactionAttributes>[]> {
-    return await super.findAll(req);
+  async findAll(
+    req: Request,
+    options?: FindOptions<TransactionAttributes>,
+  ): Promise<Model<TransactionAttributes>[]> {
+    return await super.findAll(req, options);
   }
 
   async findByID(

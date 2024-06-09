@@ -65,6 +65,32 @@ export class TransactionController extends BaseController {
     }
   }
 
+  public async getTransactions(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
+    try {
+      const { status, startDate, endDate } = req.query;
+      const transactions = await this.transactionService.getTransactions(
+        req,
+        status as string,
+        startDate as string,
+        endDate as string,
+      );
+      const transactionResultVMs = transactions.map(
+        (transaction) => new TransactionResultVM(transaction.toJSON()),
+      );
+      return this.sendSuccessGet(
+        req,
+        res,
+        transactionResultVMs.map((vm) => vm.result),
+        MessagesKey.SUCCESSGET,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
   public async updateTransactionStatus(
     req: Request,
     res: Response,

@@ -112,6 +112,25 @@ export class OrderController extends BaseController {
     }
   }
 
+  public async getTransactionByOrderId(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
+    try {
+      const orderPkid = parseInt(req.params.orderPkid);
+      if (isNaN(orderPkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const transactions = await this.orderService.getTransactionByOrderId(
+        req,
+        orderPkid,
+      );
+      return this.sendSuccessGet(req, res, transactions, MessagesKey.SUCCESSGET);
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
   //endregion
 
   //region Update Methods

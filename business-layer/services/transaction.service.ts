@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { TransactionRepository } from '../../data-access/repositories/transaction.repository';
 import { BaseService } from '../common/base.service';
 import { TransactionAttributes } from '../../infrastructure/models/transaction.model';
-import { CreationAttributes, Model } from 'sequelize';
+import { CreationAttributes, Model, WhereOptions, FindOptions, Op } from 'sequelize';
 import { getMessage } from '../../helpers/messages/messagesUtil';
 import { MessagesKey } from '../../helpers/messages/messagesKey';
 import { checkAdminRole } from '../../helpers/utility/checkAdminRole';
@@ -31,6 +31,31 @@ export class TransactionService extends BaseService<
     return await this.transactionRepository.where(req, {
       order_pkid: orderPkid,
     });
+  }
+
+  public async getTransactions(
+    req: Request,
+    status?: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<Model<TransactionAttributes>[]> {
+    const criteria: WhereOptions<TransactionAttributes> = {};
+
+    if (status) {
+      criteria.payment_status = status;
+    }
+
+    if (startDate && endDate) {
+      criteria.transaction_date = {
+        [Op.between]: [new Date(startDate), new Date(endDate)],
+      };
+    }
+
+    const options: FindOptions<TransactionAttributes> = {
+      where: criteria,
+    };
+
+    return await this.transactionRepository.findAll(req, options);
   }
 
   public async updateTransactionStatus(

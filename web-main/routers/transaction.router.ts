@@ -11,6 +11,9 @@ router.get('/:pkid', authenticate, (req, res) =>
 router.get('/order/:orderPkid', authenticate, (req, res) =>
   transactionController.getTransactionsByOrderId(req, res),
 );
+router.get('/', authenticate, (req, res) =>
+  transactionController.getTransactions(req, res),
+);
 router.put('/status/:pkid', authenticate, (req, res) =>
   transactionController.updateTransactionStatus(req, res),
 );
