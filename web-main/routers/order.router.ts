@@ -51,6 +51,11 @@ router.get('/admin/all', authenticate, (req, res) =>
   orderController.getAllOrders(req, res),
 );
 
+router.put('/admin/cancel', authenticate, (req, res) =>
+  orderController.cancelOrderByAdmin(req, res),
+);
+
+
 //endregion
 
 export default router;

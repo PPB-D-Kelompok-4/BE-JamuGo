@@ -334,6 +334,32 @@ export class OrderService extends BaseService<Model<OrderAttributes>> {
     return order.toJSON() as OrderResultDTO;
   }
 
+  public async cancelOrderByAdmin(
+    req: Request,
+    pkid: number,
+  ): Promise<OrderResultDTO> {
+    await checkAdminRole(req);
+
+    const order = await this.orderRepository.findByID(req, pkid);
+    if (!order) {
+      throw new Error(getMessage(req, MessagesKey.NODATAFOUND));
+    }
+
+    if (order.getDataValue('status') === OrderHeaderStatus.Cancelled) {
+      throw new Error(getMessage(req, MessagesKey.ORDERALREADYCANCELLED));
+    }
+
+    order.setDataValue('status', OrderHeaderStatus.Cancelled);
+    await order.save();
+
+    await this.orderStatusRepository.create(req, {
+      order_pkid: order.getDataValue('pkid'),
+      status: OrderStatus.Cancelled,
+    } as CreationAttributes<Model<OrderStatusAttributes>>);
+
+    return order.toJSON() as OrderResultDTO;
+  }
+
   public async updateOrderStatus(
     req: Request,
     pkid: number,

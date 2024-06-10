@@ -186,6 +186,26 @@ export class OrderController extends BaseController {
     }
   }
 
+  public async cancelOrderByAdmin(req: Request, res: Response): Promise<Response> {
+    try {
+      const pkid = parseInt(req.query.pkid as string);
+      if (isNaN(pkid)) {
+        return this.sendErrorBadRequest(req, res);
+      }
+      const order = await this.orderService.cancelOrderByAdmin(req, pkid);
+      const orderResultVM = new OrderResultVM(order);
+      return this.sendSuccessGet(
+        req,
+        res,
+        orderResultVM.result,
+        MessagesKey.ORDERCANCELLED,
+      );
+    } catch (error) {
+      return this.handleError(req, res, error, 500);
+    }
+  }
+
+
   public async finishOrder(req: Request, res: Response): Promise<Response> {
     try {
       const pkid = parseInt(req.params.pkid);
